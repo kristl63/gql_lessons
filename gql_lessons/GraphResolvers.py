@@ -91,16 +91,30 @@ resolveFacilityLinksForPlannedLesson = create1NGetter(
 from sqlalchemy import delete, insert
 
 async def resolveRemoveUsersFromPlan(asyncSessionMaker, plan_id, usersids):
+    # selectStmt = (select(UserPlanModel)
+    #     .where(UserPlanModel.planlesson_id==plan_id)
+    #     .where(UserPlanModel.user_id.in_(set(usersids))))
+    
     deleteStmt = (delete(UserPlanModel)
         .where(UserPlanModel.planlesson_id==plan_id)
-        .where(UserPlanModel.user_id.in_(usersids)))
+        .where(UserPlanModel.user_id.in_(set(usersids))))
+    #print(deleteStmt)
+    #print(usersids)
     async with asyncSessionMaker() as session:
-        await session.execute(deleteStmt)
+        # print(selectStmt.compile(compile_kwargs={"literal_binds": True}))
+        rows = await session.execute(deleteStmt)
+        # items = list(rows.scalars())
+        # print(items)
+        # for item in items:
+        #     print("item", item.id, item.user_id)
+        #     session.delete(item)
+        #print(rows.rowcount)
         await session.commit()
+        
 
 async def resolveAddUsersToPlan(asyncSessionMaker, plan_id, usersids):
     async with asyncSessionMaker() as session:
-        await session.execute(insert(UserPlanModel), [{"plan_id": plan_id, "user_id": user_id} for user_id in usersids])
+        await session.execute(insert(UserPlanModel), [{"planlesson_id": plan_id, "user_id": user_id} for user_id in usersids])
         await session.commit()
 
 async def resolveRemoveGroupsFromPlan(asyncSessionMaker, plan_id, groupids):
@@ -113,7 +127,7 @@ async def resolveRemoveGroupsFromPlan(asyncSessionMaker, plan_id, groupids):
 
 async def resolveAddGroupsToPlan(asyncSessionMaker, plan_id, groupids):
     async with asyncSessionMaker() as session:
-        await session.execute(insert(GroupPlanModel), [{"plan_id": plan_id, "group_id": group_id} for group_id in groupids])
+        await session.execute(insert(GroupPlanModel), [{"planlesson_id": plan_id, "group_id": group_id} for group_id in groupids])
         await session.commit()
 
 async def resolveRemoveFacilitiesFromPlan(asyncSessionMaker, plan_id, facilityids):

@@ -43,7 +43,7 @@ async def RunOnceAndReturnSessionMaker():
     print(f'starting engine for "{connectionString}"')
 
     import os
-    makeDrop = os.environ.get("DEMO", "") == "true"
+    makeDrop = os.environ.get("DEMO", None) in ["true", None]
     result = await startEngine(
         connectionstring=connectionString, makeDrop=makeDrop, makeUp=True
     )

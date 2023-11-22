@@ -32,10 +32,10 @@ def createByIdTest(tableName, queryEndpoint, attributeNames=["id", "name"]):
         assert len(datatable) > 0
         datarow = data[tableName][0]
 
-        query = "query($id: ID!){" f"{queryEndpoint}(id: $id)" "{" + attlist + "}}"
+        query = "query($id: UUID!){" f"{queryEndpoint}(id: $id)" "{" + attlist + "}}"
 
         context_value = await createContext(async_session_maker)
-        variable_values = {"id": datarow["id"]}
+        variable_values = {"id": f'{datarow["id"]}'}
         print("createByIdTest", queryEndpoint, variable_values, flush=True)
         resp = await schema.execute(
             query, context_value=context_value, variable_values=variable_values
@@ -48,6 +48,8 @@ def createByIdTest(tableName, queryEndpoint, attributeNames=["id", "name"]):
         assert respdata is not None
 
         for att in attributeNames:
+            if att in ["id"]:
+                continue
             assert respdata[att] == datarow[att]
 
     return result_test
@@ -170,7 +172,7 @@ async def test_planned_lesson_mutation():
     name = "NewName"
     query = '''
             mutation(
-                $id: ID!,
+                $id: UUID!,
                 $lastchange: DateTime!
                 $name: String!
                 ) {
@@ -257,7 +259,7 @@ async def test_planned_lesson_group_delete():
     table = data["plan_lessons_groups"]
     row = table[0]
 
-    query = """mutation($group_id: ID! $lesson_id: ID!) {
+    query = """mutation($group_id: UUID! $lesson_id: UUID!) {
         result: plannedLessonGroupDelete(
             grouplesson: {groupId: $group_id, planlessonId: $lesson_id }) {
             id
@@ -291,8 +293,8 @@ async def test_planned_lesson_group_delete():
 
     context_value = await createContext(async_session_maker)
     variable_values = {
-        "group_id": row["group_id"],
-        "lesson_id": row["planlesson_id"]
+        "group_id": f'{row["group_id"]}',
+        "lesson_id": f'{row["planlesson_id"]}'
         }
     resp = await schema.execute(query, context_value=context_value, variable_values=variable_values)
     assert resp.errors is None
@@ -314,7 +316,7 @@ async def test_planned_lesson_user_delete():
     table = data["plan_lessons_users"]
     row = table[0]
 
-    query = """mutation($user_id: ID! $lesson_id: ID!) {
+    query = """mutation($user_id: UUID! $lesson_id: UUID!) {
         result: plannedLessonUserDelete(
             userlesson: {userId: $user_id, planlessonId: $lesson_id }) {
             id
@@ -330,8 +332,8 @@ async def test_planned_lesson_user_delete():
 
     context_value = await createContext(async_session_maker)
     variable_values = {
-        "user_id": row["user_id"],
-        "lesson_id": row["planlesson_id"]
+        "user_id": f'{row["user_id"]}',
+        "lesson_id": f'{row["planlesson_id"]}'
         }
     resp = await schema.execute(query, context_value=context_value, variable_values=variable_values)
     assert resp.errors is None

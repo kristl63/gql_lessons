@@ -20,20 +20,25 @@ async def test_add_remove_users_to_plan():
     planid = row['id']
 
     async with async_session_maker() as session:
-        stmt = select(UserPlanModel)
+        stmt = select(UserPlanModel).filter_by(planlesson_id=planid)
         result = await session.execute(stmt)
         result = result.scalars().all()
+        #resultids = list(map(lambda item: f'{item.user_id}', result))
         resultids = list(map(lambda item: item.user_id, result))
+    
+    print(set(resultids))
 
     await resolveRemoveUsersFromPlan(async_session_maker, planid, resultids)
 
     async with async_session_maker() as session:
-        stmt = select(UserPlanModel)
+        stmt = select(UserPlanModel).filter_by(planlesson_id=planid)
         result = await session.execute(stmt)
         result = result.scalars().all()
-        resultids = list(map(lambda item: item.user_id, result))
-
-    assert len(resultids) == 0
+        resultids2 = list(map(lambda item: item.user_id, result))
+    
+    print(set(resultids2))
+    print(set(resultids2) - set(resultids))
+    assert len(resultids2) == 0
 
     table = tables['users']
     userids = set(map(lambda item: item['id'], table))
@@ -41,7 +46,7 @@ async def test_add_remove_users_to_plan():
     await resolveAddUsersToPlan(async_session_maker, planid, userids)
 
     async with async_session_maker() as session:
-        stmt = select(UserPlanModel)
+        stmt = select(UserPlanModel).filter_by(planlesson_id=planid)
         result = await session.execute(stmt)
         result = result.scalars().all()
         resultids = list(map(lambda item: item.user_id, result))
@@ -60,7 +65,7 @@ async def test_add_remove_groups_to_plan():
     planid = row['id']
 
     async with async_session_maker() as session:
-        stmt = select(GroupPlanModel)
+        stmt = select(GroupPlanModel).filter_by(planlesson_id=planid)
         result = await session.execute(stmt)
         result = result.scalars().all()
         resultids = list(map(lambda item: item.group_id, result))
@@ -68,7 +73,7 @@ async def test_add_remove_groups_to_plan():
     await resolveRemoveGroupsFromPlan(async_session_maker, planid, resultids)
 
     async with async_session_maker() as session:
-        stmt = select(GroupPlanModel)
+        stmt = select(GroupPlanModel).filter_by(planlesson_id=planid)
         result = await session.execute(stmt)
         result = result.scalars().all()
         resultids = list(map(lambda item: item.group_id, result))
@@ -81,7 +86,7 @@ async def test_add_remove_groups_to_plan():
     await resolveAddGroupsToPlan(async_session_maker, planid, groupids)
 
     async with async_session_maker() as session:
-        stmt = select(GroupPlanModel)
+        stmt = select(GroupPlanModel).filter_by(planlesson_id=planid)
         result = await session.execute(stmt)
         result = result.scalars().all()
         resultids = list(map(lambda item: item.group_id, result))

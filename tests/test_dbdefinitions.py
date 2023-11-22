@@ -33,14 +33,6 @@ def test_connection_string():
     assert "@" in connectionString
 
 
-from gql_lessons.DBDefinitions import UUIDColumn
-
-
-def test_connection_uuidcolumn():
-    col = UUIDColumn(name="name")
-
-    assert col is not None
-
 
 from gql_lessons.DBDefinitions import startEngine
 

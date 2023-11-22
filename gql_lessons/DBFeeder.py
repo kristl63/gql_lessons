@@ -1,5 +1,6 @@
 from doctest import master
 from functools import cache
+import uuid
 from gql_lessons.DBDefinitions import (
     PlanModel,
     PlannedLessonModel,
@@ -87,27 +88,41 @@ def get_demodata():
                         dateValueWOtzinfo = None
                 
                 json_dict[key] = dateValueWOtzinfo
+            
+            if (key in ["id", "changedby", "createdby"]) or (key.endswith("_id")):
+                
+                if key == "outer_id":
+                    json_dict[key] = value
+                elif value not in ["", None]:
+                    json_dict[key] = uuid.UUID(value)
+                else:
+                    pass
+                    #print(key, value)
+            #if (key == "event_id"): print(key, value)
+
         return json_dict
 
 
-    with open("./systemdata.json", "r") as f:
+    with open("./systemdata.json", "r", encoding="utf-8") as f:
         jsonData = json.load(f, object_hook=datetime_parser)
 
     return jsonData
 
 async def initDB(asyncSessionMaker):
 
-    defaultNoDemo = "False"
-    if defaultNoDemo == os.environ.get("DEMO", defaultNoDemo):
-        dbModels = [
-        ]
-    else:
+    
+    isDemo = os.environ.get("DEMO", None) in [None, "true"]
+    if isDemo:
         dbModels = [
             PlanModel,
             PlannedLessonModel,
             UserPlanModel,
             GroupPlanModel,
             FacilityPlanModel
+        ]
+        
+    else:
+        dbModels = [
         ]
 
     jsonData = get_demodata()

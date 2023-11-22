@@ -20,28 +20,15 @@ import uuid
 
 BaseModel = declarative_base()
 
-def newUuidAsString():
-    return f"{uuid.uuid1()}"
+from uuid import uuid4, UUID
+from sqlalchemy import Column, Uuid
+uuid = uuid4
 
+def UUIDFKey(comment=None, nullable=True, **kwargs):
+    return Column(Uuid, index=True, comment=comment, nullable=nullable, **kwargs)
 
-def UUIDColumn(name=None):
-    if name is None:
-        return Column(String, primary_key=True, unique=True, default=newUuidAsString)
-    else:
-        return Column(
-            name, String, primary_key=True, unique=True, default=newUuidAsString
-        )
-
-
-def UUIDFKey(*, ForeignKey=None, nullable=False):
-    if ForeignKey is None:
-        return Column(
-            String, index=True, nullable=nullable
-        )
-    else:
-        return Column(
-            ForeignKey, index=True, nullable=nullable
-        )
+def UUIDColumn():
+    return Column(Uuid, primary_key=True, comment="primary key", default=uuid)
 
 # id = Column(UUID(as_uuid=True), primary_key=True, server_default=sqlalchemy.text("uuid_generate_v4()"),)
 
@@ -58,6 +45,7 @@ class PlanModel(BaseModel):
     __tablename__ = "plans"
 
     id = UUIDColumn()
+    name = Column(String)
     # neni nadbytecne, topic_id muze byt null, pak je nutne mit semester_id, jedna-li se o akreditovanou vyuku
     semester_id = UUIDFKey(nullable=True)#Column(ForeignKey("acsemesters.id"), index=True, nullable=True)
 
@@ -86,12 +74,13 @@ class PlannedLessonModel(BaseModel):
 
     # neni nadbytecne, topic_id muze byt null, pak je nutne mit semester_id, jedna-li se o akreditovanou vyuku
     semester_id = UUIDFKey(nullable=True)#Column(ForeignKey("acsemesters.id"), index=True, nullable=True)
-    event_id = UUIDFKey(nullable=True)#Column(ForeignKey("events.id"), index=True, nullable=True)
 
     created = Column(DateTime, server_default=sqlalchemy.sql.func.now())
     lastchange = Column(DateTime, server_default=sqlalchemy.sql.func.now())
     changedby = UUIDFKey(nullable=True)#Column(ForeignKey("users.id"), index=True, nullable=True)
     createdby = UUIDFKey(nullable=True)#Column(ForeignKey("users.id"), index=True, nullable=True)
+
+    event_id = UUIDFKey(nullable=True)#Column(ForeignKey("events.id"), index=True, nullable=True)
 
 class UserPlanModel(BaseModel):
     __tablename__ = "plan_lessons_users"
@@ -104,6 +93,8 @@ class UserPlanModel(BaseModel):
     lastchange = Column(DateTime, server_default=sqlalchemy.sql.func.now())
     changedby = UUIDFKey(nullable=True)#Column(ForeignKey("users.id"), index=True, nullable=True)
     createdby = UUIDFKey(nullable=True)#Column(ForeignKey("users.id"), index=True, nullable=True)
+
+    
 
 class GroupPlanModel(BaseModel):
     __tablename__ = "plan_lessons_groups"
@@ -167,7 +158,7 @@ def ComposeConnectionString():
     user = os.environ.get("POSTGRES_USER", "postgres")
     password = os.environ.get("POSTGRES_PASSWORD", "example")
     database = os.environ.get("POSTGRES_DB", "data")
-    hostWithPort = os.environ.get("POSTGRES_HOST", "postgres:5432")
+    hostWithPort = os.environ.get("POSTGRES_HOST", "localhost:5432")
 
     driver = "postgresql+asyncpg"  # "postgresql+psycopg2"
     connectionstring = f"{driver}://{user}:{password}@{hostWithPort}/{database}"
