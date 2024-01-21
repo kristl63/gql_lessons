@@ -252,8 +252,6 @@ class PlannedLessonResultGQLModel:
         result = await PlannedLessonGQLModel.resolve_reference(info, self.id)
         return result
     
-
-    
 @strawberry.input
 class PlannedLessonUserInsertGQLModel:
     user_id: uuid.UUID
