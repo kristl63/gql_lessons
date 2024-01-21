@@ -14,7 +14,7 @@ from uoishelpers.resolvers import (
 )
 from uoishelpers.resolvers import putSingleEntityToDb
 
-from gql_lessons.DBDefinitions import (
+from src.DBDefinitions import (
     BaseModel,
     PlannedLessonModel,
     UserPlanModel,
@@ -22,8 +22,8 @@ from gql_lessons.DBDefinitions import (
     FacilityPlanModel,
 )
 
-# from gql_lessons.DBDefinitions import UnavailabilityPL, UnavailabilityUser, UnavailabilityFacility
-# from gql_lessons.DBDefinitions import FacilityModel
+# from src.DBDefinitions import UnavailabilityPL, UnavailabilityUser, UnavailabilityFacility
+# from src.DBDefinitions import FacilityModel
 
 ###########################################################################################################################
 #

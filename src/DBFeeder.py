@@ -1,7 +1,7 @@
 from doctest import master
 from functools import cache
 import uuid
-from gql_lessons.DBDefinitions import (
+from src.DBDefinitions import (
     PlanModel,
     PlannedLessonModel,
     UserPlanModel,

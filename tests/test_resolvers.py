@@ -1,10 +1,10 @@
 import pytest
 
-from gql_lessons.DBDefinitions import UserPlanModel, GroupPlanModel, PlannedLessonModel, FacilityPlanModel
+from src.DBDefinitions import UserPlanModel, GroupPlanModel, PlannedLessonModel, FacilityPlanModel
 from tests.shared import prepare_demodata, prepare_in_memory_sqllite, get_demodata
 
-from gql_lessons.GraphResolvers import resolveAddFacilitiesToPlan, resolveAddUsersToPlan, resolveAddGroupsToPlan
-from gql_lessons.GraphResolvers import resolveRemoveFacilitiesFromPlan, resolveRemoveGroupsFromPlan, resolveRemoveUsersFromPlan
+from src.GraphResolvers import resolveAddFacilitiesToPlan, resolveAddUsersToPlan, resolveAddGroupsToPlan
+from src.GraphResolvers import resolveRemoveFacilitiesFromPlan, resolveRemoveGroupsFromPlan, resolveRemoveUsersFromPlan
 
 from sqlalchemy import select
 
@@ -133,7 +133,7 @@ async def test_add_remove_facilities_to_plan():
         
     assert len(resultids) == len(facilityids)
 
-from gql_lessons.GraphResolvers import resolveRemovePlan
+from src.GraphResolvers import resolveRemovePlan
 
 @pytest.mark.asyncio
 async def test_add_remove_plan():

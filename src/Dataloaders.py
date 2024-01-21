@@ -5,7 +5,7 @@ import os
 from aiodataloader import DataLoader
 import logging
 
-from gql_lessons.DBDefinitions import (
+from src.DBDefinitions import (
     PlanModel,
     PlannedLessonModel,
     UserPlanModel,

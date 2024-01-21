@@ -48,13 +48,13 @@ class PlanModel(BaseModel):
     name = Column(String)
     # neni nadbytecne, topic_id muze byt null, pak je nutne mit semester_id, jedna-li se o akreditovanou vyuku
     semester_id = UUIDFKey(nullable=True)#Column(ForeignKey("acsemesters.id"), index=True, nullable=True)
-
+    masterevent_id = UUIDFKey(nullable=True)#Column(ForeignKey("acsemesters.id"), index=True, nullable=True)
 
     created = Column(DateTime, server_default=sqlalchemy.sql.func.now())
     lastchange = Column(DateTime, server_default=sqlalchemy.sql.func.now())
     changedby = UUIDFKey(nullable=True)#Column(ForeignKey("users.id"), index=True, nullable=True)
     createdby = UUIDFKey(nullable=True)#Column(ForeignKey("users.id"), index=True, nullable=True)
-
+    rbacobject = UUIDFKey(nullable=True, comment="id rbacobject")#Column(ForeignKey("users.id"), index=True, nullable=True)
 
 class PlannedLessonModel(BaseModel):
     """Defines a lesson which is going to be planned in timetable"""
@@ -79,8 +79,12 @@ class PlannedLessonModel(BaseModel):
     lastchange = Column(DateTime, server_default=sqlalchemy.sql.func.now())
     changedby = UUIDFKey(nullable=True)#Column(ForeignKey("users.id"), index=True, nullable=True)
     createdby = UUIDFKey(nullable=True)#Column(ForeignKey("users.id"), index=True, nullable=True)
+    rbacobject = UUIDFKey(nullable=True, comment="id rbacobject")#Column(ForeignKey("users.id"), index=True, nullable=True)
 
     event_id = UUIDFKey(nullable=True)#Column(ForeignKey("events.id"), index=True, nullable=True)
+    users = relationship("UserPlanModel.id", back_populates="plan", uselist=True)
+    facilities = relationship("FacilityPlanModel.id", back_populates="plan", uselist=True)
+    groups = relationship("GroupPlanModel.id", back_populates="plan", uselist=True)
 
 class UserPlanModel(BaseModel):
     __tablename__ = "plan_lessons_users"
@@ -93,8 +97,9 @@ class UserPlanModel(BaseModel):
     lastchange = Column(DateTime, server_default=sqlalchemy.sql.func.now())
     changedby = UUIDFKey(nullable=True)#Column(ForeignKey("users.id"), index=True, nullable=True)
     createdby = UUIDFKey(nullable=True)#Column(ForeignKey("users.id"), index=True, nullable=True)
+    rbacobject = UUIDFKey(nullable=True, comment="id rbacobject")#Column(ForeignKey("users.id"), index=True, nullable=True)
 
-    
+    plan = relationship("PlannedLessonModel", back_populates="users", uselist=False)
 
 class GroupPlanModel(BaseModel):
     __tablename__ = "plan_lessons_groups"
@@ -107,7 +112,9 @@ class GroupPlanModel(BaseModel):
     lastchange = Column(DateTime, server_default=sqlalchemy.sql.func.now())
     changedby = UUIDFKey(nullable=True)#Column(ForeignKey("users.id"), index=True, nullable=True)
     createdby = UUIDFKey(nullable=True)#Column(ForeignKey("users.id"), index=True, nullable=True)
+    rbacobject = UUIDFKey(nullable=True, comment="id rbacobject")#Column(ForeignKey("users.id"), index=True, nullable=True)
 
+    plan = relationship("PlannedLessonModel", back_populates="groups", uselist=False)
 
 class FacilityPlanModel(BaseModel):
     __tablename__ = "plan_lessons_facilities"
@@ -120,6 +127,9 @@ class FacilityPlanModel(BaseModel):
     lastchange = Column(DateTime, server_default=sqlalchemy.sql.func.now())
     changedby = UUIDFKey(nullable=True)#Column(ForeignKey("users.id"), index=True, nullable=True)
     createdby = UUIDFKey(nullable=True)#Column(ForeignKey("users.id"), index=True, nullable=True)
+    rbacobject = UUIDFKey(nullable=True, comment="id rbacobject")#Column(ForeignKey("users.id"), index=True, nullable=True)
+
+    plan = relationship("PlannedLessonModel", back_populates="facilities", uselist=False)
 
 ###########################################################
 

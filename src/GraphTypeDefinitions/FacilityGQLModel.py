@@ -3,7 +3,7 @@ from typing import List, Optional, Annotated
 import asyncio
 import uuid
 
-def getLoaders(info):
+def getLoadersFromInfo(info):
     return info.context['all']
 
 PlannedLessonGQLModel = Annotated["PlannedLessonGQLModel", strawberry.lazy(".PlannedLessonGQLModel")]
@@ -21,7 +21,7 @@ class FacilityGQLModel:
     @strawberry.field(description="""planned items""")
     async def planned_lessons(self, info: strawberry.types.Info) -> List['PlannedLessonGQLModel']:
         from .PlannedLessonGQLModel import PlannedLessonGQLModel
-        loader = getLoaders(info).facilityplans
+        loader = getLoadersFromInfo(info).facilityplans
         rows = await loader.filter_by(facility_id=self.id)
         rowids = (row.planlesson_id for row in rows)
         # rowids = list(rowids)

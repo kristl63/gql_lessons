@@ -12,7 +12,7 @@ from strawberry.fastapi import GraphQLRouter
 ## Definice DB typu (pomoci SQLAlchemy https://www.sqlalchemy.org/)
 ## SQLAlchemy zvoleno kvuli moznost komunikovat s DB asynchronne
 ## https://docs.sqlalchemy.org/en/14/core/future.html?highlight=select#sqlalchemy.future.select
-from gql_lessons.DBDefinitions import startEngine, ComposeConnectionString
+from src.DBDefinitions import startEngine, ComposeConnectionString
 
 ## Zabezpecuje prvotni inicializaci DB a definovani Nahodne struktury pro "Univerzity"
 # from gql_workflow.DBFeeder import createSystemDataStructureRoleTypes, createSystemDataStructureGroupTypes
@@ -33,7 +33,7 @@ def singleCall(asyncFunc):
 
     return result
 
-from gql_lessons.DBFeeder import initDB
+from src.DBFeeder import initDB
 
 @singleCall
 async def RunOnceAndReturnSessionMaker():
@@ -69,7 +69,7 @@ async def RunOnceAndReturnSessionMaker():
 
 from strawberry.asgi import GraphQL
 
-from gql_lessons.Dataloaders import createLoaders 
+from src.Dataloaders import createLoaders 
 class MyGraphQL(GraphQL):
     """Rozsirena trida zabezpecujici praci se session"""
 
@@ -92,7 +92,7 @@ class MyGraphQL(GraphQL):
         }
 
 
-from gql_lessons.GraphTypeDefinitions import schema
+from src.GraphTypeDefinitions import schema
 
 ## ASGI app, kterou "moutneme"
 graphql_app = MyGraphQL(schema, graphiql=True, allow_queries_via_get=True)

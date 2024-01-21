@@ -3,14 +3,14 @@ import sys
 import asyncio
 
 # setting path
-#sys.path.append("../gql_lessons")
+#sys.path.append("../src")
 
 import pytest
 
 # from ..uoishelpers.uuid import UUIDColumn
 
-from gql_lessons.DBDefinitions import BaseModel
-from gql_lessons.DBDefinitions import UserPlanModel, GroupPlanModel, PlannedLessonModel
+from src.DBDefinitions import BaseModel
+from src.DBDefinitions import UserPlanModel, GroupPlanModel, PlannedLessonModel
 
 from tests.shared import prepare_demodata, prepare_in_memory_sqllite, get_demodata
 
@@ -23,7 +23,7 @@ async def test_table_users_feed():
     data = get_demodata()
 
 
-from gql_lessons.DBDefinitions import ComposeConnectionString
+from src.DBDefinitions import ComposeConnectionString
 
 
 def test_connection_string():
@@ -34,7 +34,7 @@ def test_connection_string():
 
 
 
-from gql_lessons.DBDefinitions import startEngine
+from src.DBDefinitions import startEngine
 
 
 @pytest.mark.asyncio
