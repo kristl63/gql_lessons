@@ -111,7 +111,7 @@ def get_demodata():
 async def initDB(asyncSessionMaker):
 
     
-    isDemo = os.environ.get("DEMO", None) in [None, "true"]
+    isDemo = os.environ.get("DEMO", None) in [None, "True"]
     if isDemo:
         dbModels = [
             PlanModel,

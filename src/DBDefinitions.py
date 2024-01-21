@@ -15,7 +15,7 @@ from sqlalchemy import (
 from sqlalchemy.dialects.postgresql import UUID
 
 from sqlalchemy.orm import relationship
-from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy.orm import declarative_base
 import uuid
 
 BaseModel = declarative_base()
@@ -82,9 +82,9 @@ class PlannedLessonModel(BaseModel):
     rbacobject = UUIDFKey(nullable=True, comment="id rbacobject")#Column(ForeignKey("users.id"), index=True, nullable=True)
 
     event_id = UUIDFKey(nullable=True)#Column(ForeignKey("events.id"), index=True, nullable=True)
-    users = relationship("UserPlanModel.id", back_populates="plan", uselist=True)
-    facilities = relationship("FacilityPlanModel.id", back_populates="plan", uselist=True)
-    groups = relationship("GroupPlanModel.id", back_populates="plan", uselist=True)
+    users = relationship("UserPlanModel", back_populates="plan", uselist=True)
+    facilities = relationship("FacilityPlanModel", back_populates="plan", uselist=True)
+    groups = relationship("GroupPlanModel", back_populates="plan", uselist=True)
 
 class UserPlanModel(BaseModel):
     __tablename__ = "plan_lessons_users"

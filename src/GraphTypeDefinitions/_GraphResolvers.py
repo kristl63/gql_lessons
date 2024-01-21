@@ -46,14 +46,14 @@ def resolve_id(self) -> IDType:
     description="""Name """,
     permission_classes=[OnlyForAuthentized()]
     )
-def resolve_name(self) -> str:
+def resolve_name(self) -> typing.Optional[str]:
     return self.name
 
 @strawberry.field(
     description="""English name""",
     permission_classes=[OnlyForAuthentized()]
     )
-def resolve_name_en(self) -> str:
+def resolve_name_en(self) -> typing.Optional[str]:
     result = self.name_en if self.name_en else ""
     return result
 
@@ -61,7 +61,7 @@ def resolve_name_en(self) -> str:
     description="""Time of last update""",
     permission_classes=[OnlyForAuthentized()]
     )
-def resolve_lastchange(self) -> datetime.datetime:
+def resolve_lastchange(self) -> typing.Optional[datetime.datetime]:
     return self.lastchange
 
 @strawberry.field(

@@ -308,6 +308,13 @@ class Mutation:
     planned_lesson_group_insert = planned_lesson_group_insert
     planned_lesson_user_delete = planned_lesson_user_delete
     planned_lesson_user_insert = planned_lesson_user_insert
+
+    from .PlannedLessonGQLModel import (
+        planned_lesson_insert,
+        planned_lesson_update
+    )
+    planned_lesson_insert = planned_lesson_insert
+    planned_lesson_update = planned_lesson_update
     
 ###########################################################################################################################
 #

@@ -5,63 +5,84 @@ import pytest_asyncio
 import uuid
 
 queries = {
-    "acprograms": {
+    "plans": {
         "read": """query($id: UUID!){ result: planById(id: $id) { id } }""",
         "readext": """query($id: UUID!){ 
-          result: acProgramById(id: $id) { 
-            id type { id } subjects {id } students { id } grantsGroup { id } licencedGroup { id }
-          } }""",
-        "readp": """query($skip: Int, $limit: Int){ result: Page(skip: $skip, limit: $limit) { id } }""",
-        "create": """mutation ($id: UUID!, $name: String!, $type_id: UUID!, $group_id: UUID!, $licenced_group_id: UUID!) {
-        result: programInsert(program: {id: $id, name: $name, typeId: $type_id, groupId: $group_id, licencedGroupId: $licenced_group_id}) {
-            id
-            msg
-            result: program {
+          result: planById(id: $id) {
+                id name
+                lessons { id } semester { id }
+            } }""",
+        "readp": """query($skip: Int, $limit: Int){ result: planPage(skip: $skip, limit: $limit) { id } }""",
+        "create": """mutation createPlan($semester_id: UUID!, $masterevent_id: UUID!) {
+            result: planInsert(plan: {semesterId: $semester_id, mastereventId: $masterevent_id}) {
                 id
-                name
-                nameEn
-                type { id }
-                subjects { id }
-                students { id }
-                grantsGroup { id }
-                licencedGroup { id }
-                createdby { id }
-                changedby { id }
-                rbacobject { id }
+                msg
+                plan {
+                    id
+                    lastchange
+                }
             }
-        }
-    }"""
+            }"""
     }, 
-    "acclassifications": {
-        "read": """query($id: UUID!){ result: acClassificationById(id: $id) { id } }""",
+    "plan_lessons": {
+        "read": """query($id: UUID!){ result: plannedLessonById(id: $id) { id } }""",
         "readext": """query($id: UUID!){ 
-          result: acClassificationById(id: $id) { 
-            id date order student { id } semester { id } level { id }
-          }}""",
-        "readp": """query($skip: Int, $limit: Int){ result: acClassificationPage(skip: $skip, limit: $limit) { id } }""",
-        "create": """mutation ($id: UUID!, $date: DateTime!, $order: Int!
-            $student_id: UUID!, $semester_id: UUID! 
-            $classificationlevel_id: UUID!
-        ) {
-        result: programClassificationInsert(classification: {
-                id: $id, date: $date, order: $order
-                studentId: $student_id, semesterId: $semester_id,
-                classificationlevelId: $classificationlevel_id
-            }) {
-            id
-            msg
-            result: classification {
+          result: plannedLessonById(id: $id) {
+            id order name length
+            type { id } users { id } facilities { id }
+            groups { id } linkedTo { id } linkedWith { id }
+        }}""",
+        "readp": """query($skip: Int, $limit: Int){ result: plannedLessonPage(skip: $skip, limit: $limit) { id } }""",
+        "create": """mutation createPlanItem($plan_id: UUID!, $name: String!) {
+            result: plannedLessonInsert(lesson: {planId: $plan_id, name: $name}) {
+                id
+                msg
+                lesson {
                 id
                 lastchange
-                date
-                order
-                student { id }
-                semester { id }
-                level { id }
+                }
             }
-        }
-    }"""        
+            }"""        
     },
+    "plan_lessons_users": {
+        "read": "query($id: UUID!){ result: plannedLessonById(id: $id) { id } }",
+        "readext": "query($id: UUID!){ result: plannedLessonById(id: $id) { id } }",
+        "create": """mutation insertUser($id: UUID, $user_id: UUID!, $planlesson_id: UUID!) {
+            result: plannedLessonUserInsert(userlesson: {id: $id, userId: $user_id, planlessonId: $planlesson_id}) {
+                id
+                msg
+                lesson {
+                    id
+                }
+            }
+            }"""
+    },
+    "plan_lessons_groups": {
+        "read": "query($id: UUID!){ result: plannedLessonById(id: $id) { id } }",
+        "readext": "query($id: UUID!){ result: plannedLessonById(id: $id) { id } }",
+        "create": """mutation insertGroup($id: UUID, $group_id: UUID!, $planlesson_id: UUID!) {
+            result: plannedLessonGroupInsert(grouplesson: {id: $id, groupId: $group_id, planlessonId: $planlesson_id}) {
+                id
+                msg
+                lesson {
+                    id
+                }
+            }
+            }"""
+    },
+    "plan_lessons_facilities": {
+        "read": "query($id: UUID!){ result: plannedLessonById(id: $id) { id } }",
+        "readext": "query($id: UUID!){ result: plannedLessonById(id: $id) { id } }",
+        "create": """mutation insertFacility($id: UUID, $facility_id: UUID!, $planlesson_id: UUID!) {
+            result: plannedLessonFacilityInsert(facilitylesson: {id: $id, facilityId: $facility_id, planlessonId: $planlesson_id}) {
+                id
+                msg
+                lesson {
+                    id
+                }
+            }
+            }"""
+    }
 
 }
     

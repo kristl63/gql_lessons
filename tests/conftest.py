@@ -19,54 +19,21 @@ serversTestscope = "function"
 @pytest.fixture
 def DBModels():
     from src.DBDefinitions import (
-        ProgramFormTypeModel,
-        ProgramTitleTypeModel,
-        ProgramLanguageTypeModel,
-        ProgramLevelTypeModel,
-        ProgramTypeModel,
-        ProgramModel,
-        
-        ProgramStudentStateModel,
-        ProgramStudentModel,
-        ProgramStudentMessageModel,
-
-        ClassificationTypeModel,
-        ClassificationLevelModel,
-
-        LessonTypeModel,
-
-        SubjectModel,
-        SemesterModel,
-        TopicModel,
-        LessonModel,
-
-        ClassificationModel
+        PlanModel,
+        PlannedLessonModel,
+        FacilityPlanModel,
+        UserPlanModel,
+        GroupPlanModel
     )
     ##
     # order is important!
     ##
     return  [
-        ProgramFormTypeModel,
-        ProgramTitleTypeModel,
-        ProgramLanguageTypeModel,
-        ProgramLevelTypeModel,
-        ProgramTypeModel,
-        ProgramModel,
-        
-        ProgramStudentStateModel,
-        ProgramStudentModel,
-        ProgramStudentMessageModel,
-
-        ClassificationTypeModel,
-        ClassificationLevelModel,
-
-        LessonTypeModel,
-        SubjectModel,
-        SemesterModel,
-        TopicModel,
-        LessonModel,
-
-        ClassificationModel
+        PlanModel,
+        PlannedLessonModel,
+        FacilityPlanModel,
+        UserPlanModel,
+        GroupPlanModel
         ]
 
 from src.DBFeeder import get_demodata
