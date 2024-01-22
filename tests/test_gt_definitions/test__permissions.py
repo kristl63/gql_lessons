@@ -1,5 +1,28 @@
 import pytest
 
+# @pytest.mark.asyncio
+# async def test_Import(DemoFalse):
+#     import main
+#     main.schema
+#     return
+
+# @pytest.mark.asyncio
+# async def test_SchemaExecutorDemo(DemoFalse, SchemaExecutorDemo, DemoData):
+#     return
+
+# @pytest.mark.asyncio
+# async def test_FastAPIClient(DemoFalse, FastAPIClient, DemoData):
+#     return
+
+# @pytest.mark.asyncio
+# async def test_FastAPIClient2(DemoFalse, FastAPIClient2, DemoData):
+#     return
+
+
+# @pytest.mark.asyncio
+# async def test_ClientExecutorAdmin(DemoFalse, ClientExecutorAdmin, DemoData):
+#     return
+
 
 @pytest.mark.asyncio
 async def test_FillDataViaGQL(DemoFalse, FillDataViaGQL, ClientExecutorAdmin, DemoData):

@@ -177,6 +177,7 @@ async def encapsulateInsert(info, loader, entity, result):
     row = await loader.insert(entity)
     assert result.msg is not None, "result msg must be predefined (Operation Insert)"
     result.id = row.id
+    # result.id = entity.id
     return result
 
 async def encapsulateUpdate(info, loader, entity, result):

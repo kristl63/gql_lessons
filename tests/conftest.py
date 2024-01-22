@@ -93,7 +93,7 @@ def Request(AuthorizationHeaders):
 
 @pytest.fixture
 def Context(AdminUser, SQLite, LoadersContext, Request):
-    from src.gql_ug_proxy import get_ug_connection
+    # from src.gql_ug_proxy import get_ug_connection
     
     Async_Session_Maker = SQLite
     return {
@@ -102,7 +102,7 @@ def Context(AdminUser, SQLite, LoadersContext, Request):
         "": Async_Session_Maker,
         "user": AdminUser,
         "x": "",
-        "ug_connection": get_ug_connection
+        # "ug_connection": get_ug_connection
     }
 
 @pytest.fixture

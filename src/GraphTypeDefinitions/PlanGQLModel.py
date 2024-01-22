@@ -56,7 +56,7 @@ PlannedLessonGQLModel = Annotated["PlannedLessonGQLModel", strawberry.lazy(".Pla
 class PlanGQLModel(BaseGQLModel):
     @classmethod
     def getLoader(cls, info: strawberry.types.Info):
-        return getLoadersFromInfo(info).psps
+        return getLoadersFromInfo(info).plans
 
     id = resolve_id
     name = resolve_name
@@ -78,10 +78,11 @@ class PlanGQLModel(BaseGQLModel):
         result = await AcSemesterGQLModel.resolve_reference(id=self.semester_id)
         return result
 
-# @createInputs
-# @dataclass
-# class PlanInputFilter2:
-#     name: str
+@createInputs
+@dataclass
+class PlanInputFilter:
+    name: str
+    masterevent_id: IDType
 
 @strawberry.field(description="""Planned lesson by its id""")
 async def plan_by_id(
@@ -94,7 +95,7 @@ async def plan_by_id(
 @asPage
 async def plan_page(
     self, info: strawberry.types.Info, skip: int = 0, limit: int = 10, 
-    # where: Optional[PlanInputFilter2] = None
+    where: Optional[PlanInputFilter] = None
 ) -> List[PlanGQLModel]:
     return PlanGQLModel.getLoader(info)
 

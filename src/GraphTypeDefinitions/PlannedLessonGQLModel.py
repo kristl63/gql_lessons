@@ -37,7 +37,7 @@ PlanGQLModel = Annotated["PlanGQLModel", strawberry.lazy(".PlanGQLModel")]
 class PlannedLessonGQLModel(BaseGQLModel):
     @classmethod
     def getLoader(cls, info: strawberry.types.Info):
-        return getLoadersFromInfo(info).plans
+        return getLoadersFromInfo(info).plan_lessons
         
     id = resolve_id
     name = resolve_name
@@ -66,7 +66,7 @@ class PlannedLessonGQLModel(BaseGQLModel):
     async def linked_to(
         self, info: strawberry.types.Info
     ) -> Optional["PlannedLessonGQLModel"]:
-        loader = getLoadersFromInfo(info).plans
+        loader = PlannedLessonGQLModel.getLoader(info)
         result = None
         if self.linkedlesson_id is not None:
             result = await loader.load(self.linkedlesson_id)
@@ -78,7 +78,7 @@ class PlannedLessonGQLModel(BaseGQLModel):
     async def linked_with(
         self, info: strawberry.types.Info, including_self: Optional[bool] = False
     ) -> List["PlannedLessonGQLModel"]:
-        loader = getLoadersFromInfo(info).plans
+        loader = PlannedLessonGQLModel.getLoader(info)
         # result1 = await loader.load(self.id)
         result1 = [self]
         if self.linkedlesson_id is not None:
@@ -89,14 +89,14 @@ class PlannedLessonGQLModel(BaseGQLModel):
     @strawberry.field(description="""teachers""")
     async def users(self, info: strawberry.types.Info) -> List["UserGQLModel"]:
         from .UserGQLModel import UserGQLModel
-        loader = getLoadersFromInfo(info).userplans
+        loader = getLoadersFromInfo(info).plan_lessons_users
         result = await loader.filter_by(planlesson_id=self.id)
         return [UserGQLModel(id=item.user_id) for item in result]
 
     @strawberry.field(description="""study groups""")
     async def groups(self, info: strawberry.types.Info) -> List["GroupGQLModel"]:
         from .GroupGQLModel import GroupGQLModel
-        loader = getLoadersFromInfo(info).groupplans
+        loader = getLoadersFromInfo(info).plan_lessons_groups
         result = await loader.filter_by(planlesson_id=self.id)
         return [GroupGQLModel(id=item.group_id) for item in result]
 
@@ -105,7 +105,7 @@ class PlannedLessonGQLModel(BaseGQLModel):
         self, info: strawberry.types.Info
     ) -> List["FacilityGQLModel"]:
         from .FacilityGQLModel import FacilityGQLModel
-        loader = getLoadersFromInfo(info).facilityplans
+        loader = getLoadersFromInfo(info).plan_lessons_facilities
         result = await loader.filter_by(planlesson_id=self.id)
         return [FacilityGQLModel(id=item.facility_id) for item in result]
 
@@ -177,9 +177,9 @@ class PlannedLessonInputFilter:
     semester_id: IDType
     topic_id: IDType
     linkedlesson_id: IDType
-    facilities: PlannedFacilityInputFilter
-    users: PlannedUserInputFilter
-    groups: PlannedGroupInputFilter
+    # facilities: PlannedFacilityInputFilter
+    # users: PlannedUserInputFilter
+    # groups: PlannedGroupInputFilter
 
 @strawberry.field(description="""Planned lesson by its id""")
 async def planned_lesson_by_id(
@@ -191,7 +191,7 @@ async def planned_lesson_by_id(
 @asPage
 async def planned_lesson_page(
     self, info: strawberry.types.Info, skip: int = 0, limit: int = 10, 
-    # where: Optional[PlannedLessonInputFilter] = None
+    where: Optional[PlannedLessonInputFilter] = None
 ) -> List[PlannedLessonGQLModel]:
     return PlannedLessonGQLModel.getLoader(info)
 
@@ -315,8 +315,9 @@ class PlannedLessonAssignmentResultGQLModel:
 @strawberry.mutation(description="Assings a teacher to the planned lesson")
 async def planned_lesson_user_insert(self, info: strawberry.types.Info, userlesson: PlannedLessonUserInsertGQLModel) -> PlannedLessonResultGQLModel:
     userlesson.createdby = actinguserid(info)
-    loader = getLoadersFromInfo(info).userplans
+    loader = getLoadersFromInfo(info).plan_lessons_users
     rows = await loader.filter_by(planlesson_id=userlesson.planlesson_id, user_id=userlesson.user_id)
+    exists = False
     rows = list(rows)
     exists = len(rows) > 0
     if not exists:
@@ -328,7 +329,7 @@ async def planned_lesson_user_insert(self, info: strawberry.types.Info, userless
 
 @strawberry.mutation(description="Removes the teacher to the planned lesson")
 async def planned_lesson_user_delete(self, info: strawberry.types.Info, userlesson: PlannedLessonUserDeleteGQLModel) -> PlannedLessonResultGQLModel:
-    loader = getLoadersFromInfo(info).userplans
+    loader = getLoadersFromInfo(info).plan_lessons_users
     rows = await loader.filter_by(planlesson_id=userlesson.planlesson_id, user_id=userlesson.user_id)
     row = next(rows, None)
     result = PlannedLessonResultGQLModel()
@@ -348,7 +349,7 @@ async def planned_lesson_user_delete(self, info: strawberry.types.Info, userless
 @strawberry.mutation(description="Assings a group to the planned lesson")
 async def planned_lesson_group_insert(self, info: strawberry.types.Info, grouplesson: PlannedLessonGroupInsertGQLModel) -> PlannedLessonResultGQLModel:
     grouplesson.createdby = actinguserid(info)
-    loader = getLoadersFromInfo(info).groupplans
+    loader = getLoadersFromInfo(info).plan_lessons_groups
     rows = await loader.filter_by(planlesson_id=grouplesson.planlesson_id, group_id=grouplesson.group_id)
     rows = list(rows)
     exists = len(rows) > 0
@@ -362,7 +363,7 @@ async def planned_lesson_group_insert(self, info: strawberry.types.Info, grouple
 
 @strawberry.mutation(description="Removes the group to the planned lesson")
 async def planned_lesson_group_delete(self, info: strawberry.types.Info, grouplesson: PlannedLessonGroupDeleteGQLModel) -> PlannedLessonResultGQLModel:
-    loader = getLoadersFromInfo(info).groupplans
+    loader = getLoadersFromInfo(info).plan_lessons_groups
     rows = await loader.filter_by(planlesson_id=grouplesson.planlesson_id, group_id=grouplesson.group_id)
     row = next(rows, None)
     result = PlannedLessonResultGQLModel()
@@ -378,7 +379,7 @@ async def planned_lesson_group_delete(self, info: strawberry.types.Info, grouple
 @strawberry.mutation(description="Assigns a facility to the planned lesson")
 async def planned_lesson_facility_insert(self, info: strawberry.types.Info, facilitylesson: PlannedLessonFacilityInsertGQLModel) -> PlannedLessonResultGQLModel:
     facilitylesson.createdby = actinguserid(info)
-    loader = getLoadersFromInfo(info).facilityplans
+    loader = getLoadersFromInfo(info).plan_lessons_facilities
     rows = await loader.filter_by(planlesson_id=facilitylesson.planlesson_id, facility_id=facilitylesson.facility_id)
     rows = list(rows)
     exists = len(rows) > 0
@@ -391,7 +392,7 @@ async def planned_lesson_facility_insert(self, info: strawberry.types.Info, faci
 
 @strawberry.mutation(description="Removes the facility to the planned lesson")
 async def planned_lesson_facility_delete(self, info: strawberry.types.Info, facilitylesson: PlannedLessonFacilityDeleteGQLModel) -> PlannedLessonResultGQLModel:
-    loader = getLoadersFromInfo(info).facilityplans
+    loader = getLoadersFromInfo(info).plan_lessons_facilities
     rows = await loader.filter_by(planlesson_id=facilitylesson.planlesson_id, facility_id=facilitylesson.facility_id)
     row = next(rows, None)
     result = PlannedLessonResultGQLModel()
