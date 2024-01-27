@@ -16,17 +16,22 @@ ENV PYTHONUNBUFFERED=1
 COPY requirements.txt .
 RUN python -m pip install -r requirements.txt
 
+FROM prepare as test
+
+COPY requirements-dev.txt .
+RUN python -m pip install -r requirements-dev.txt
+
 WORKDIR /app
 COPY . /app
 
-# FROM prepare as tester
-RUN python -m pip install coverage pytest pytest-cov
-# RUN python -m unittest tests/*
-RUN python -m pytest --cov-report term-missing --cov=gql_ug tests/*
+RUN python -m pytest --cov-report term-missing --cov=src tests/*
 
 FROM prepare as runner
 # Creates a non-root user and adds permission to access the /app folder
 # For more info, please refer to https://aka.ms/vscode-docker-python-configure-containers
+WORKDIR /app
+COPY . /app
+
 RUN useradd appuser && chown -R appuser /app
 USER appuser
 
