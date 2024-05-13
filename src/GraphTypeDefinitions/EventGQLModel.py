@@ -4,8 +4,7 @@ import asyncio
 import uuid
 from typing import Annotated, List
 
-def getLoadersFromInfo(info):
-    return info.context['all']
+from src.Dataloaders import getLoadersFromInfo
 
 PlannedLessonGQLModel = Annotated["PlannedLessonGQLModel", strawberry.lazy(".PlannedLessonGQLModel")]
 

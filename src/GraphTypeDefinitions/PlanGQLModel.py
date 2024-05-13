@@ -64,11 +64,14 @@ class PlanGQLModel(BaseGQLModel):
     lastchange = resolve_lastchange
     created = resolve_created
     createdby = resolve_createdby
-
+    
+    rbac_object = resolve_rbacobject
     
     @strawberry.field(description="""planned lessons""")
     async def lessons(self, info: strawberry.types.Info) -> List["PlannedLessonGQLModel"]:
-        loader = getLoadersFromInfo(info).plans
+        from .PlannedLessonGQLModel import PlannedLessonGQLModel
+        # loader = getLoadersFromInfo(info).plans
+        loader = PlannedLessonGQLModel.getLoader(info)
         result = await loader.filter_by(plan_id=self.id)
         return result
     
@@ -99,7 +102,7 @@ async def plan_page(
 ) -> List[PlanGQLModel]:
     return PlanGQLModel.getLoader(info)
 
-@strawberry.input
+@strawberry.input(description="")
 class PlanInsertGQLModel:
     semester_id: IDType
     masterevent_id: IDType
@@ -107,12 +110,14 @@ class PlanInsertGQLModel:
     name: Optional[str] = "Nový plán"
     pass
 
-@strawberry.input
+@strawberry.input(description="")
 class PlanUpdateGQLModel:
     id: IDType
+    lastchange: datetime.datetime
+    name: Optional[str]
     pass
 
-@strawberry.type
+@strawberry.type(description="")
 class PlanResultGQLModel:
     id: uuid.UUID = None
     msg: str = None
@@ -122,10 +127,10 @@ class PlanResultGQLModel:
         result = await PlanGQLModel.resolve_reference(info, self.id)
         return result
     
-@strawberry.mutation(description="""Planned lesson paged""")
+@strawberry.mutation(description="""Plan insert""")
 async def plan_insert(self, info: strawberry.types.Info, plan: PlanInsertGQLModel) -> PlanResultGQLModel:
     return await encapsulateInsert(info, PlanGQLModel.getLoader(info), plan, PlanResultGQLModel(msg="ok", id=None))
 
-@strawberry.mutation(description="""Planned lesson paged""")
+@strawberry.mutation(description="""Plan update""")
 async def plan_update(self, info: strawberry.types.Info, plan: PlanUpdateGQLModel) -> PlanResultGQLModel:
     return await encapsulateUpdate(info, PlanGQLModel.getLoader(info), plan, PlanResultGQLModel(msg="ok", id=plan.id))
