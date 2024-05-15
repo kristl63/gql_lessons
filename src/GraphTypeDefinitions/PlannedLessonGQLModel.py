@@ -257,6 +257,15 @@ class PlannedLessonResultGQLModel:
         result = await PlannedLessonGQLModel.resolve_reference(info, self.id)
         return result
     
+    @strawberry.field(description="""Master of lesson - the plan""")
+    async def plan(self, info: strawberry.types.Info) -> Optional[PlanGQLModel]:
+        from .PlanGQLModel import PlanGQLModel
+        # print("PlannedLessonResultGQLModel.lesson.id", self.id)
+        result = await PlannedLessonGQLModel.resolve_reference(info, self.id)
+        if result.plan_id:
+            return await PlanGQLModel.resolve_reference(info, id=result.plan_id)
+        return None
+        
 @strawberry.input(description="")
 class PlannedLessonUserInsertGQLModel:
     user_id: uuid.UUID
@@ -415,9 +424,10 @@ async def planned_lesson_insert(self, info: strawberry.types.Info, lesson: Plann
 async def planned_lesson_update(self, info: strawberry.types.Info, lesson: PlannedLessonUpdateGQLModel) -> PlannedLessonResultGQLModel:
     return await encapsulateUpdate(info, PlannedLessonGQLModel.getLoader(info), lesson, PlannedLessonResultGQLModel(msg="ok", id=None))
 
-PlanResultGQLModel = Annotated["PlanResultGQLModel", ".PlanGQLModel"]
+PlanResultGQLModel = Annotated["PlanResultGQLModel", strawberry.lazy(".PlanGQLModel")]
 @strawberry.mutation
-async def planned_lesson_remove(self, info: strawberry.types.Info, lesson: PlannedLessonDeleteGQLModel) -> Optional[PlanResultGQLModel]:
+async def planned_lesson_remove(self, info: strawberry.types.Info, lesson: PlannedLessonDeleteGQLModel) -> Optional["PlanResultGQLModel"]: #PlannedLessonResultGQLModel: # 
+    from .PlanGQLModel import PlanResultGQLModel
     loader = PlannedLessonGQLModel.getLoader(info)
     row = await loader.load(lesson.id)
     result = PlanResultGQLModel()

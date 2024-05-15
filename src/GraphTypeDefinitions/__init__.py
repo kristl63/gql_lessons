@@ -66,10 +66,12 @@ class Mutation:
 
     from .PlannedLessonGQLModel import (
         planned_lesson_insert,
-        planned_lesson_update
+        planned_lesson_update,
+        planned_lesson_remove
     )
     planned_lesson_insert = planned_lesson_insert
     planned_lesson_update = planned_lesson_update
+    planned_lesson_remove = planned_lesson_remove
     
 ###########################################################################################################################
 #
