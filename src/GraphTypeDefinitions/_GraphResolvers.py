@@ -75,7 +75,7 @@ UserGQLModel = typing.Annotated["UserGQLModel", strawberry.lazy(".UserGQLModel")
 
 async def resolve_user(user_id):
     from .UserGQLModel import UserGQLModel
-    result = None if user_id is None else await UserGQLModel.resolve_reference(id=user_id, info=None)
+    result = None if user_id is None else await UserGQLModel.resolve_reference(id=user_id)
     return result
     
 @strawberry.field(description="""Who created entity""",
