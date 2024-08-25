@@ -109,9 +109,7 @@ def get_demodata():
     return jsonData
 
 async def initDB(asyncSessionMaker):
-
-    
-    isDemo = os.environ.get("DEMODATA", None)
+    isDemo =  os.environ.get("DEMODATA", None) in ["False", "false"]
     if isDemo:
         dbModels = [
             PlanModel,
