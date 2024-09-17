@@ -82,4 +82,8 @@ class Mutation:
 #
 ###########################################################################################################################
 
-schema = strawberry.federation.Schema(query=Query, mutation=Mutation)
+from .UserGQLModel import UserGQLModel
+from .EventGQLModel import EventGQLModel
+from .FacilityGQLModel import FacilityGQLModel
+
+schema = strawberry.federation.Schema(query=Query, mutation=Mutation, types=(UserGQLModel, EventGQLModel, FacilityGQLModel))

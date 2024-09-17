@@ -26,7 +26,8 @@ class UserGQLModel:
     @strawberry.field(description="""planned items""")
     async def planned_lessons(self, info: strawberry.types.Info) -> typing.List['PlannedLessonGQLModel']:
         from .PlannedLessonGQLModel import PlannedLessonGQLModel
-        loader = getLoadersFromInfo(info).userplans
+        # loader = PlannedLessonGQLModel.getLoader(info)
+        loader = getLoadersFromInfo(info).plan_lessons_users
         rows = await loader.filter_by(user_id=self.id)
         rowids = (row.planlesson_id for row in rows)
         # rowids = list(rowids)
