@@ -19,7 +19,7 @@ class GroupGQLModel:
     @strawberry.field(description="""planned items""")
     async def planned_lessons(self, info: strawberry.types.Info) -> List['PlannedLessonGQLModel']:
         from .PlannedLessonGQLModel import PlannedLessonGQLModel
-        loader = getLoadersFromInfo(info).groupplans
+        loader = getLoadersFromInfo(info).GroupPlanModel
         rows = await loader.filter_by(group_id=self.id)
         rowids = (row.planlesson_id for row in rows)
         # rowids = list(rowids)
