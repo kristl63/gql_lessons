@@ -45,7 +45,7 @@ class PlanModel(BaseModel):
     __tablename__ = "plans"
 
     id = UUIDColumn()
-    name = Column(String)
+    name = Column(String, comment="Name of the plan")#<-- toto je podstata zadání!!!!!!!!!!!
     # neni nadbytecne, topic_id muze byt null, pak je nutne mit semester_id, jedna-li se o akreditovanou vyuku
     semester_id = UUIDFKey(nullable=True)#Column(ForeignKey("acsemesters.id"), index=True, nullable=True)
     masterevent_id = UUIDFKey(nullable=True)#Column(ForeignKey("acsemesters.id"), index=True, nullable=True)
@@ -169,7 +169,7 @@ def ComposeConnectionString():
     password = os.environ.get("POSTGRES_PASSWORD", "example")
     database = os.environ.get("POSTGRES_DB", "data")
     hostWithPort = os.environ.get("POSTGRES_HOST", "localhost:5432")
-    hostWithPort = os.environ.get("POSTGRES_HOST", "host.docker.internal:5432")
+    #hostWithPort = os.environ.get("POSTGRES_HOST", "host.docker.internal:5432")
 
     driver = "postgresql+asyncpg"  # "postgresql+psycopg2"
     connectionstring = f"{driver}://{user}:{password}@{hostWithPort}/{database}"
