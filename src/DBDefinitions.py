@@ -45,7 +45,7 @@ class PlanModel(BaseModel):
     __tablename__ = "plans"
 
     id = UUIDColumn()
-    name = Column(String, comment="Name of the plan")#<-- toto je podstata zadání!!!!!!!!!!!
+    name = Column(String, comment="Name of the plan")#<-- toto!
     # neni nadbytecne, topic_id muze byt null, pak je nutne mit semester_id, jedna-li se o akreditovanou vyuku
     semester_id = UUIDFKey(nullable=True)#Column(ForeignKey("acsemesters.id"), index=True, nullable=True)
     masterevent_id = UUIDFKey(nullable=True)#Column(ForeignKey("acsemesters.id"), index=True, nullable=True)
