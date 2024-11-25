@@ -6,6 +6,8 @@ import logging.handlers
 from fastapi import FastAPI, Request
 from strawberry.asgi import GraphQL
 
+from fastapi.responses import FileResponse, JSONResponse
+
 from uoishelpers.gqlrouter import MountGuardedGQL
 
 from src.DBDefinitions import startEngine, ComposeConnectionString
@@ -105,6 +107,11 @@ async def lifespan(app: FastAPI):
     yield
 
 app = FastAPI(lifespan=lifespan)
+
+@app.get("/voyager", response_class=FileResponse)
+async def graphiql():
+    realpath = os.path.realpath("./voyager.html")
+    return realpath
 
 DEMO = os.getenv("DEMO", None)
 MountGuardedGQL(app, schema=schema, get_context=get_context, DEMO=os.getenv("DEMO", None))
