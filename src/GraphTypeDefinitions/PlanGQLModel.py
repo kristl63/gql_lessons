@@ -1,6 +1,6 @@
 import strawberry
 import datetime
-from typing import List, Optional, Annotated
+from typing import List, Optional, Annotated, Union
 from .BaseGQLModel import BaseGQLModel
 import uuid
 from dataclasses import dataclass
@@ -134,3 +134,15 @@ async def plan_insert(self, info: strawberry.types.Info, plan: PlanInsertGQLMode
 @strawberry.mutation(description="""Plan update""")
 async def plan_update(self, info: strawberry.types.Info, plan: PlanUpdateGQLModel) -> PlanResultGQLModel:
     return await encapsulateUpdate(info, PlanGQLModel.getLoader(info), plan, PlanResultGQLModel(msg="ok", id=plan.id))
+
+from uoishelpers.resolvers import Insert, InsertError, Update, UpdateError
+@strawberry.mutation(description="""Plan insert""")
+async def plan_insert(self, info: strawberry.types.Info, plan: PlanInsertGQLModel) -> Union[PlanGQLModel, InsertError[PlanGQLModel]]:
+    result = await Insert[PlanGQLModel].DoItSafeWay(info=info, entity=plan)
+    return result
+
+from uoishelpers.resolvers import Insert, InsertError, Update, UpdateError
+@strawberry.mutation(description="""Plan update""")
+async def plan_update(self, info: strawberry.types.Info, plan: PlanUpdateGQLModel) -> PlanResultGQLModel:
+    result = await Update[PlanGQLModel].DoItSafeWay(info=info, entity=plan)
+    return result
