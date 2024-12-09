@@ -134,6 +134,10 @@ async def plan_insert(self, info: strawberry.types.Info, plan: PlanInsertGQLMode
 @strawberry.mutation(description="""Plan update""")
 async def plan_update(self, info: strawberry.types.Info, plan: PlanUpdateGQLModel) -> PlanResultGQLModel:
     return await encapsulateUpdate(info, PlanGQLModel.getLoader(info), plan, PlanResultGQLModel(msg="ok", id=plan.id))
+#generated
+@strawberry.mutation(description="""Plan delete""")
+async def plan_delete(self, info: strawberry.types.Info, id: IDType) -> PlanGQLModel:
+    return await PlanGQLModel.getLoader(info).delete(id)
 
 from uoishelpers.resolvers import Insert, InsertError, Update, UpdateError
 @strawberry.mutation(description="""Plan insert""")
@@ -145,4 +149,10 @@ from uoishelpers.resolvers import Insert, InsertError, Update, UpdateError
 @strawberry.mutation(description="""Plan update""")
 async def plan_update(self, info: strawberry.types.Info, plan: PlanUpdateGQLModel) -> PlanResultGQLModel:
     result = await Update[PlanGQLModel].DoItSafeWay(info=info, entity=plan)
+    return result
+#generated
+from uoishelpers.resolvers import Delete, DeleteError
+@strawberry.mutation(description="""Plan delete""")
+async def plan_delete(self, info: strawberry.types.Info, id: IDType) -> Union[PlanGQLModel, DeleteError[PlanGQLModel]]:
+    result = await Delete[PlanGQLModel].DoItSafeWay(info=info, id=id)
     return result
