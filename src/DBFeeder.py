@@ -108,7 +108,7 @@ def get_demodata():
 
     return jsonData
 
-async def initDB(asyncSessionMaker):
+async def initDB(asyncSessionMaker, filename: str):#zmněna
     isDemo =  os.environ.get("DEMODATA", None) in ["True", "true"]
     if isDemo:
         dbModels = [

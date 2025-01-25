@@ -1,0 +1,42 @@
+mutation ($id: UUID, $name: String!) {
+  result: plannedLessonInsert(
+    lesson: {id: $id, name: $name}
+  ) {
+    __typename
+    ...Error
+    ...PlannedLesson
+  }
+}
+
+mutation ($name: String!, $plan_id: UUID!, $length: Int, $startproposal: DateTime, $order: Int, $linkedlesson_id: UUID, $topic_id: UUID, $lessontype_id: UUID, $semester_id: UUID, $event_id: UUID) {
+  result: plannedLessonInsert(
+    lesson: {
+      name: $name,
+      plan_id: $plan_id,
+      length: $length,
+      startproposal: $startproposal,
+      order: $order,
+      linkedlesson_id: $linkedlesson_id,
+      topic_id: $topic_id,
+      lessontype_id: $lessontype_id,
+      semester_id: $semester_id,
+      event_id: $event_id
+    }
+  ) {
+    __typename
+    ...Error
+    ...PlannedLesson
+  }
+}
+
+
+fragment Error on InsertError {
+	__typename
+	msg
+}
+
+fragment PlannedLesson on PlannedLessonGQLModel {
+  id
+  lastchange
+  name
+}

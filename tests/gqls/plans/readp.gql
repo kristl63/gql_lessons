@@ -1,0 +1,20 @@
+query ftp($skip: Int, $limit: Int){
+  facilityTypePage(skip: $skip, limit: $limit) {
+    __typename
+    id
+    name
+    nameEn
+    lastchange
+  }
+}
+
+query planPage($skip: Int = 0, $limit: Int = 10, $where: PlanInputFilter) {
+  planPage(skip: $skip, limit: $limit, where: $where) {
+    __typename
+    id
+    name
+    description
+    startdate
+    enddate
+  }
+}

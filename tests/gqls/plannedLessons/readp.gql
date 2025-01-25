@@ -1,0 +1,51 @@
+
+query plannedLessonPage($skip: Int = 0, $limit: Int = 10, $where: PlannedLessonInputFilter) {
+  plannedLessonPage(skip: $skip, limit: $limit, where: $where) {
+    __typename
+    id
+    name
+    lastchange
+    created
+    createdby {
+      id
+    }
+    changedby {
+      id
+    }
+    rbac_object {
+      id
+    }
+    order
+    length
+    type {
+      id
+    }
+    linked_to {
+      id
+    }
+    linked_with {
+      id
+    }
+    users {
+      id
+    }
+    groups {
+      id
+    }
+    facilities {
+      id
+    }
+    event {
+      id
+    }
+    topic {
+      id
+    }
+    semester {
+      id
+    }
+    plan {
+      id
+    }
+  }
+}

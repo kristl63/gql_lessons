@@ -1,0 +1,9 @@
+query facilityById($id: UUID!) {
+  facilityById(id: $id) {
+    __typename
+    id
+    name
+    nameEn
+    lastchange
+  }
+}

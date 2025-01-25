@@ -1,0 +1,10 @@
+query facilityPage($skip: Int = 0, $limit: Int = 10) {
+  facilityPage(skip: $skip, limit: $limit) {
+    __typename
+    id
+    name
+    nameEn
+    lastchange
+  }
+}
+
