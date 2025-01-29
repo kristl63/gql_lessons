@@ -89,6 +89,8 @@ resolveFacilityLinksForPlannedLesson = create1NGetter(
 # resolveInsertUnavailabilityFacility = createInsertResolver(UnavailabilityFacility)
 
 from sqlalchemy import delete, insert
+import strawberry#
+from typing import Optional#
 
 async def resolveRemoveUsersFromPlan(asyncSessionMaker, plan_id, usersids):
     # selectStmt = (select(UserPlanModel)
@@ -154,3 +156,22 @@ async def resolveRemovePlan(asyncSessionMaker, plan_id):
         await session.execute(deleteCStmt)
         await session.execute(deleteDStmt)
         await session.commit()
+
+
+#added
+@strawberry.type
+class Plan:
+    id: strawberry.ID
+    name: str
+    lastchange: str
+
+@strawberry.type
+class Query:
+    @strawberry.field
+    async def plan_by_id(self, info: strawberry.types.Info, id: strawberry.ID) -> Optional[Plan]:
+        async with info.context["asyncSessionMaker"]() as session:
+            result = await session.execute(select(PlannedLessonModel).where(PlannedLessonModel.id == id))
+            plan = result.scalar_one_or_none()
+            if plan:
+                return Plan(id=plan.id, name=plan.name, lastchange=plan.lastchange)
+            return None

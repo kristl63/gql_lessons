@@ -69,7 +69,7 @@ async def RunOnceAndReturnSessionMaker():
     #
     # zde definujte do funkce asyncio.gather
     # vlozte asynchronni funkce, ktere maji data uvest do prvotniho konzistentniho stavu
-    await initDB(result)
+    await initDB(result, filename="systemdata.json")
     # await asyncio.gather( # concurency running :)
     # sem lze dat vsechny funkce, ktere maji nejak inicializovat databazi
     # musi byt asynchronniho typu (async def ...)
@@ -97,10 +97,10 @@ async def get_context(request: Request):
     # result = {**context, **connectionContext}
     result = {**context}
     result["request"] = request
-    # result["user"] = request.scope.get("user", None)
+    result["scope"] = request.scope  # Ensure the scope is included in the context
     logging.info(f"context created {result}")
     return result
-
+    
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     initizalizedEngine = await RunOnceAndReturnSessionMaker()

@@ -5,6 +5,7 @@ from .BaseGQLModel import BaseGQLModel
 import uuid
 from dataclasses import dataclass
 from uoishelpers.resolvers import createInputs
+import typing
 
 from ._GraphResolvers import (
     resolve_id,
@@ -14,7 +15,6 @@ from ._GraphResolvers import (
     resolve_created,
     resolve_lastchange,
     resolve_createdby,
-
 )
 
 from ._GraphPermissions import (
@@ -37,8 +37,7 @@ from ._GraphResolvers import (
     encapsulateUpdate,
 
     asPage
-    )
-
+)
 
 UserGQLModel = Annotated["UserGQLModel", strawberry.lazy(".UserGQLModel")]
 GroupGQLModel = Annotated["GroupGQLModel", strawberry.lazy(".GroupGQLModel")]
@@ -70,7 +69,6 @@ class PlanGQLModel(BaseGQLModel):
     @strawberry.field(description="""planned lessons""")
     async def lessons(self, info: strawberry.types.Info) -> List["PlannedLessonGQLModel"]:
         from .PlannedLessonGQLModel import PlannedLessonGQLModel
-        # loader = getLoadersFromInfo(info).plans
         loader = PlannedLessonGQLModel.getLoader(info)
         result = await loader.filter_by(plan_id=self.id)
         return result
@@ -117,6 +115,12 @@ class PlanUpdateGQLModel:
     name: Optional[str]
     pass
 
+@strawberry.input(description="")
+class PlanDeleteGQLModel:
+    id: IDType
+    lastchange: datetime.datetime
+    pass
+
 @strawberry.type(description="")
 class PlanResultGQLModel:
     id: uuid.UUID = None
@@ -134,10 +138,12 @@ async def plan_insert(self, info: strawberry.types.Info, plan: PlanInsertGQLMode
 @strawberry.mutation(description="""Plan update""")
 async def plan_update(self, info: strawberry.types.Info, plan: PlanUpdateGQLModel) -> PlanResultGQLModel:
     return await encapsulateUpdate(info, PlanGQLModel.getLoader(info), plan, PlanResultGQLModel(msg="ok", id=plan.id))
-#generated
-@strawberry.mutation(description="""Plan delete""")
-async def plan_delete(self, info: strawberry.types.Info, id: IDType) -> PlanGQLModel:
-    return await PlanGQLModel.getLoader(info).delete(id)
+
+# @strawberry.mutation(description="""Plan delete""")
+# async def plan_delete(self, info: strawberry.types.Info, plan: PlanDeleteGQLModel) -> PlanResultGQLModel:
+#     loader = PlanGQLModel.getLoader(info)
+#     result = await loader.delete(plan.id)
+#     return PlanResultGQLModel(id=plan.id, msg="ok")
 
 from uoishelpers.resolvers import Insert, InsertError, Update, UpdateError
 @strawberry.mutation(description="""Plan insert""")
@@ -145,14 +151,13 @@ async def plan_insert(self, info: strawberry.types.Info, plan: PlanInsertGQLMode
     result = await Insert[PlanGQLModel].DoItSafeWay(info=info, entity=plan)
     return result
 
-from uoishelpers.resolvers import Insert, InsertError, Update, UpdateError
 @strawberry.mutation(description="""Plan update""")
-async def plan_update(self, info: strawberry.types.Info, plan: PlanUpdateGQLModel) -> PlanResultGQLModel:
+async def plan_update(self, info: strawberry.types.Info, plan: PlanUpdateGQLModel) -> Union[PlanGQLModel, UpdateError[PlanGQLModel]]:
     result = await Update[PlanGQLModel].DoItSafeWay(info=info, entity=plan)
     return result
-#generated
+
 from uoishelpers.resolvers import Delete, DeleteError
 @strawberry.mutation(description="""Plan delete""")
-async def plan_delete(self, info: strawberry.types.Info, id: IDType) -> Union[PlanGQLModel, DeleteError[PlanGQLModel]]:
+async def plan_delete(self, info: strawberry.types.Info, id: PlanDeleteGQLModel) -> typing.Optional[DeleteError[PlanGQLModel]]:
     result = await Delete[PlanGQLModel].DoItSafeWay(info=info, id=id)
     return result

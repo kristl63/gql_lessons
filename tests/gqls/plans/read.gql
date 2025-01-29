@@ -1,29 +1,17 @@
-query ftid($id: UUID!){
-  facilityTypeById(id: $id) {
-    __typename
-    id
-    name
-    nameEn
-    lastchange
-  }
-}
-
 query planById($id: UUID!) {
   planById(id: $id) {
     __typename
     id
     name
-    description
-    startdate
-    enddate
+    lastchange
   }
 }
 
-fragment Plan on PlanGQLModel{
-  __typename
-  id
-  name
-  description
-  startdate
-  enddate
+query read($id: UUID!) {
+  result: planById(id: $id) {
+    __typename
+    id
+    name
+    lastchange
+  }
 }

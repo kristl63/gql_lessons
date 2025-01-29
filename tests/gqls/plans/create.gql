@@ -1,44 +1,11 @@
-mutation ($id: UUID, $name: String!) {
-  result: facilityTypeInsert(
-    facilityType: {id: $id, name: $name}
-  ) {
-    __typename
-    ...Error
-    ...Facility
-  }
-}
-
-mutation ($name: String!, $description: String, $startdate: DateTime, $enddate: DateTime) {
+mutation ($name: String!, $semesterId: UUID!, $mastereventId: UUID!) {
   result: planInsert(
     plan: {
       name: $name,
-      description: $description,
-      startdate: $startdate,
-      enddate: $enddate
+      semesterId: $semesterId,
+      mastereventId: $mastereventId,
     }
   ) {
     __typename
-    ...Error
-    ...Plan
   }
-}
-
-fragment Error on InsertError {
-	__typename
-	msg
-}
-
-fragment Facility on FacilityTypeGQLModel {
-  id
-  lastchange
-  name
-  nameEn
-}
-
-fragment Plan on PlanGQLModel {
-  id
-  name
-  description
-  startdate
-  enddate
 }

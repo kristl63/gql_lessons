@@ -1,51 +1,12 @@
-mutation ($id: UUID!, $lastchange: DateTime!, $name: String!) {
-  result: facilityTypeUpdate(
-    facilityType: {id: $id, lastchange: $lastchange, name: $name}
-  ) {
-    __typename
-    ...Facility
-    ...Error
-  }
-}
 
-fragment Error on FacilityTypeGQLModelUpdateError {
-	__typename
-  failed
-}
-
-fragment Facility on FacilityTypeGQLModel {
-  id
-  lastchange
-  name
-  nameEn
-}
-
-mutation ($id: UUID!, $lastchange: DateTime!, $name: String, $description: String, $startdate: DateTime, $enddate: DateTime) {
+mutation ($id: UUID!, $lastchange: DateTime!, $name: String) {
   result: planUpdate(
     plan: {
       id: $id,
       lastchange: $lastchange,
       name: $name,
-      description: $description,
-      startdate: $startdate,
-      enddate: $enddate
     }
   ) {
     __typename
-    ...Error
-    ...Plan
   }
-}
-
-fragment Error on PlanUpdateError {
-	__typename
-  failed
-}
-
-fragment Plan on PlanGQLModel {
-  id
-  name
-  description
-  startdate
-  enddate
 }

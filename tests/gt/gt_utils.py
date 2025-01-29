@@ -70,9 +70,7 @@ location = re.sub(r"\\tests\\.+", r"\\tests\\gqls", dir_path)
 # location
 print("location", location, flush=True)
 logging.info(f"Queries location {dir_path} => {location}")
-
 def getQuery(tableName, queryName):
-    location = "./tests/gqls"
     queryFileName = f"{location}/{tableName}/{queryName}.gql"
     assert os.path.isfile(queryFileName), f"unable find query {queryName}@{tableName} {queryFileName}"
     logging.info(f"found query {queryName}@{tableName} {queryFileName}")

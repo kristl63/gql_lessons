@@ -88,4 +88,12 @@ from .EventGQLModel import EventGQLModel
 from .FacilityGQLModel import FacilityGQLModel
 from .AcSemesterGQLModel import AcSemesterGQLModel
 from .AcTopicGQLModel import AcTopicGQLModel
-schema = strawberry.federation.Schema(query=Query, mutation=Mutation, types=(UserGQLModel, EventGQLModel, FacilityGQLModel, AcSemesterGQLModel, AcTopicGQLModel, GroupGQLModel))
+schema = strawberry.federation.Schema(
+    query=Query, 
+    mutation=Mutation, 
+    types=(UserGQLModel, EventGQLModel, FacilityGQLModel, AcSemesterGQLModel, AcTopicGQLModel, GroupGQLModel),
+    extensions=[]
+)
+from uoishelpers.schema import WhoAmIExtension
+schema.extensions.append(WhoAmIExtension)
+
