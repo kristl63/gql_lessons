@@ -1,0 +1,8 @@
+query Facility_resolve_reference($id: UUID!) {
+  _entities(representations: [{ __typename: "FacilityGQLModel", id: $id }]) {
+    __typename
+    ... on FacilityGQLModel {
+      id
+    }
+  }
+}

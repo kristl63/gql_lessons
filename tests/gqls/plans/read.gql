@@ -1,17 +1,14 @@
-query planById($id: UUID!) {
-  planById(id: $id) {
-    __typename
-    id
-    name
-    lastchange
+
+query read($id: UUID!){
+  result: planById(id: $id){
+    ...Plan
   }
 }
 
-query read($id: UUID!) {
-  result: planById(id: $id) {
-    __typename
-    id
-    name
-    lastchange
-  }
+fragment	Plan on PlanGQLModel {
+  __typename
+  id
+  lastchange
+  name
 }
+

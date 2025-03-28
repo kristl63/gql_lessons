@@ -1,0 +1,8 @@
+query PlannedLesson_resolve_reference($id: UUID!) {
+  _entities(representations: [{ __typename: "PlannedLessonGQLModel", id: $id }]) {
+    __typename
+    ... on PlannedLessonGQLModel {
+      id
+    }
+  }
+}

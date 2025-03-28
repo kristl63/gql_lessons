@@ -1,0 +1,6 @@
+mutation DeleteUserLesson($userlesson: PlannedLessonUserDeleteGQLModel!) {
+  result: plannedLessonUserDelete(userlesson: $userlesson) {
+    id
+    msg
+  }
+}

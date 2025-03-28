@@ -1,0 +1,6 @@
+mutation InsertFacilityLesson($facilitylesson: PlannedLessonFacilityInsertGQLModel!) {
+  result: plannedLessonFacilityInsert(facilitylesson: $facilitylesson) {
+    id
+    msg
+  }
+}

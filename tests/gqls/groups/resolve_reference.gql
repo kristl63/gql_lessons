@@ -1,0 +1,8 @@
+query Group_resolve_reference($id: UUID!) {
+  _entities(representations: [{ __typename: "GroupGQLModel", id: $id }]) {
+    __typename
+    ... on GroupGQLModel {
+      id
+    }
+  }
+}

@@ -1,0 +1,6 @@
+mutation InsertUserLesson($userlesson: PlannedLessonUserInsertGQLModel!) {
+  result: plannedLessonUserInsert(userlesson: $userlesson) {
+    msg
+    id
+  }
+}

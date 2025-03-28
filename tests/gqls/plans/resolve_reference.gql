@@ -1,0 +1,8 @@
+query Plan_resolve_reference($id: UUID!) {
+  _entities(representations: [{ __typename: "PlanGQLModel", id: $id }]) {
+    __typename
+    ... on PlanGQLModel {
+      id
+    }
+  }
+}

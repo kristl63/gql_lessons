@@ -1,0 +1,18 @@
+query PlannedLessonFull($id: UUID!) {
+  plannedLessonById(id: $id) {
+    id
+    name
+    order
+    length
+    type { id }  
+    linkedTo { id }
+    linkedWith { id }
+    users { id }  # bez fullname
+    groups { id }
+    facilities { id }
+    event { id }
+    topic { id }
+    semester { id }
+    plan { id  }
+  }
+}

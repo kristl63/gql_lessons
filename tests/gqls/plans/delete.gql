@@ -1,16 +1,18 @@
+mutation DeletePlan($id: UUID!, $lastchange: DateTime!) {
+  planDelete(
+    plan: { id: $id, lastchange: $lastchange }
+  ) {
+    __typename
+    ...Error
+  }
+}
 
-mutation deletePlan($id: UUID!, $lastchange: DateTime!) {
-  deletePlan(input: {id: $id, lastchange: $lastchange}) {
-    plan {
-      id
-      lastchange
-    }
-    errors {
-      message
-      Entity{
-        id
-        lastchange
-      }
-    }
+fragment Error on PlanGQLModelDeleteError {
+  msg
+  input
+  failed
+  Entity {
+    id
+    lastchange
   }
 }

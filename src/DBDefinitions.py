@@ -27,8 +27,13 @@ uuid = uuid4
 def UUIDFKey(comment=None, nullable=True, **kwargs):
     return Column(Uuid, index=True, comment=comment, nullable=nullable, **kwargs)
 
-def UUIDColumn():
-    return Column(Uuid, primary_key=True, comment="primary key", default=uuid)
+#def UUIDColumn():
+    #return Column(Uuid, primary_key=True, comment="primary key", default=uuid)
+def UUIDColumn(*args, **kwargs):
+    from sqlalchemy.dialects.postgresql import UUID as Uuid
+    import uuid
+    return Column(Uuid(as_uuid=True), primary_key=True, default=uuid.uuid4, comment="primary key", *args, **kwargs)
+
 
 # id = Column(UUID(as_uuid=True), primary_key=True, server_default=sqlalchemy.text("uuid_generate_v4()"),)
 
@@ -49,6 +54,8 @@ class PlanModel(BaseModel):
     # neni nadbytecne, topic_id muze byt null, pak je nutne mit semester_id, jedna-li se o akreditovanou vyuku
     semester_id = UUIDFKey(nullable=True)#Column(ForeignKey("acsemesters.id"), index=True, nullable=True)
     masterevent_id = UUIDFKey(nullable=True)#Column(ForeignKey("acsemesters.id"), index=True, nullable=True)
+
+    event_id = UUIDFKey(nullable=True, comment="Optional event reference")
 
     created = Column(DateTime, server_default=sqlalchemy.sql.func.now())
     lastchange = Column(DateTime, server_default=sqlalchemy.sql.func.now())
@@ -130,6 +137,7 @@ class FacilityPlanModel(BaseModel):
     rbacobject = UUIDFKey(nullable=True, comment="id rbacobject")#Column(ForeignKey("users.id"), index=True, nullable=True)
 
     plan = relationship("PlannedLessonModel", back_populates="facilities", uselist=False)
+
 
 ###########################################################
 

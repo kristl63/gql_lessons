@@ -199,34 +199,71 @@ def createUpdateTest2(tableName, variables=None, expectedJson=None):
         
     return result_test
 
+#def createDeleteTest2(tableName, variables=None, expectedJson=None):
+#    @pytest.mark.asyncio
+#    async def result_test(SchemaExecutorDemo):
+#        queryCreate = getQuery(tableName=tableName, queryName="create")
+#        queryDelete = getQuery(tableName=tableName, queryName="delete")
+#        _variables = variables
+#        if _variables is None:
+#            _variables = getVariables(tableName=tableName, queryName="delete")
+#        assert _variables != {}, f"variables must be set"
+#
+#        responseJson = await SchemaExecutorDemo(query=queryCreate, variable_values=_variables)
+#        responseData = responseJson.get("data")
+#        assert responseData is not None, f"got no data while creating an entity for delete query {responseJson}"
+#        
+#        [responseEntity, *_] = responseData.values()
+#        assert responseEntity is not None, f"got no entity while asking for lastchange atribute {responseJson}"
+#        assert "lastchange" in responseEntity, f"query read for table {tableName} is not asking for lastchange which is needed see {responseJson}"
+#        assert "id" in responseEntity is not None, f"variables must have an 'id'"
+#        
+#        _variables = responseEntity
+#        _expectedJson = expectedJson
+#        if _expectedJson is None:
+#            _expectedJson = getExpectedResult(tableName=tableName, queryName="delete")
+#        responseJson = await SchemaExecutorDemo(query=queryDelete, variable_values=_variables)
+#        if _expectedJson is not None:
+#            assert checkExpected(responseJson, expectedJson), f"unexpected response \n{responseJson}\ninstead\n{_expectedJson}"
+#        else:
+#            assert "errors" not in responseJson, f"update failed {responseJson}"
+#            logging.info(f"query for {queryDelete} with {_variables}, no tested response")
+#        
+#    return result_test
 def createDeleteTest2(tableName, variables=None, expectedJson=None):
     @pytest.mark.asyncio
     async def result_test(SchemaExecutorDemo):
         queryCreate = getQuery(tableName=tableName, queryName="create")
         queryDelete = getQuery(tableName=tableName, queryName="delete")
-        _variables = variables
-        if _variables is None:
-            _variables = getVariables(tableName=tableName, queryName="delete")
+
+        _variables = variables or getVariables(tableName=tableName, queryName="delete")
         assert _variables != {}, f"variables must be set"
 
         responseJson = await SchemaExecutorDemo(query=queryCreate, variable_values=_variables)
         responseData = responseJson.get("data")
         assert responseData is not None, f"got no data while creating an entity for delete query {responseJson}"
-        
+
         [responseEntity, *_] = responseData.values()
-        assert responseEntity is not None, f"got no entity while asking for lastchange atribute {responseJson}"
-        assert "lastchange" in responseEntity, f"query read for table {tableName} is not asking for lastchange which is needed see {responseJson}"
-        assert "id" in responseEntity is not None, f"variables must have an 'id'"
-        
-        _variables = responseEntity
-        _expectedJson = expectedJson
-        if _expectedJson is None:
-            _expectedJson = getExpectedResult(tableName=tableName, queryName="delete")
-        responseJson = await SchemaExecutorDemo(query=queryDelete, variable_values=_variables)
-        if _expectedJson is not None:
-            assert checkExpected(responseJson, expectedJson), f"unexpected response \n{responseJson}\ninstead\n{_expectedJson}"
+        assert responseEntity is not None, f"got no entity while asking for lastchange attribute {responseJson}"
+
+        # Try to locate 'lastchange' within responseEntity or its nested dict
+        if "lastchange" in responseEntity:
+            innerEntity = responseEntity
         else:
-            assert "errors" not in responseJson, f"update failed {responseJson}"
+            innerEntity = next((v for v in responseEntity.values() if isinstance(v, dict) and "lastchange" in v), None)
+            assert innerEntity is not None, f"'lastchange' attribute not found in any sub-entity of responseEntity: {responseJson}"
+
+        assert "id" in innerEntity, f"'id' must be present in the response entity: {innerEntity}"
+        assert "lastchange" in innerEntity, f"'lastchange' must be present in the response entity: {innerEntity}"
+
+        _variables = innerEntity
+        _expectedJson = expectedJson or getExpectedResult(tableName=tableName, queryName="delete")
+        responseJson = await SchemaExecutorDemo(query=queryDelete, variable_values=_variables)
+
+        if _expectedJson is not None:
+            assert checkExpected(responseJson, _expectedJson), f"unexpected response \n{responseJson}\ninstead\n{_expectedJson}"
+        else:
+            assert "errors" not in responseJson, f"delete failed {responseJson}"
             logging.info(f"query for {queryDelete} with {_variables}, no tested response")
-        
+
     return result_test

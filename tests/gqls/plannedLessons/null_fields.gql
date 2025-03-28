@@ -1,0 +1,9 @@
+query PlannedLessonNullFields($id: UUID!) {
+  result: plannedLessonById(id: $id) {
+    linkedTo { id }
+    event { id }
+    topic { id }
+    semester { id }
+    plan { id }
+  }
+}

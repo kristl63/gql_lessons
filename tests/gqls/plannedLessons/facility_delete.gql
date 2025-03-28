@@ -1,0 +1,6 @@
+mutation DeleteFacilityLesson($facilitylesson: PlannedLessonFacilityDeleteGQLModel!) {
+  result: plannedLessonFacilityDelete(facilitylesson: $facilitylesson) {
+    id
+    msg
+  }
+}

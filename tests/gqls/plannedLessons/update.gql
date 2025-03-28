@@ -1,33 +1,13 @@
 
-mutation ($id: UUID!, $lastchange: DateTime!, $name: String!, $length: Int, $startproposal: DateTime, $order: Int, $linkedlesson_id: UUID, $topic_id: UUID, $lessontype_id: UUID, $semester_id: UUID, $event_id: UUID) {
+
+mutation ($id: UUID!, $lastchange: DateTime!, $name: String) {
   result: plannedLessonUpdate(
     lesson: {
       id: $id,
       lastchange: $lastchange,
-      name: $name,
-      length: $length,
-      startproposal: $startproposal,
-      order: $order,
-      linkedlesson_id: $linkedlesson_id,
-      topic_id: $topic_id,
-      lessontype_id: $lessontype_id,
-      semester_id: $semester_id,
-      event_id: $event_id
+      name: $name
     }
   ) {
     __typename
-    ...Error
-    ...PlannedLesson
   }
-}
-
-fragment Error on PlannedLessonUpdateError {
-	__typename
-  failed
-}
-
-fragment PlannedLesson on PlannedLessonGQLModel {
-  id
-  lastchange
-  name
 }

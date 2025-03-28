@@ -1,3 +1,4 @@
+
 mutation ($name: String!, $semesterId: UUID!, $mastereventId: UUID!) {
   result: planInsert(
     plan: {
@@ -7,5 +8,20 @@ mutation ($name: String!, $semesterId: UUID!, $mastereventId: UUID!) {
     }
   ) {
     __typename
+    ...Plan
+    ...on InsertError {
+      failed
+      input
+      msg
+    }
   }
+}
+
+
+fragment	Plan on PlanGQLModel {
+  __typename
+  id
+  lastchange
+  name
+  
 }

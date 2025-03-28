@@ -1,12 +1,13 @@
 
 query planPage($skip: Int = 0, $limit: Int = 10, $where: PlanInputFilter) {
   planPage(skip: $skip, limit: $limit, where: $where) {
-    __typename
-    id
-    name
-    description
-    startdate
-    enddate
-    lastchange
+    ...Plan
   }
+}
+
+fragment	Plan on PlanGQLModel {
+  __typename
+  id
+  lastchange
+  name
 }

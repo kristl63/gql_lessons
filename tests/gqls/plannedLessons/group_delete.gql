@@ -1,0 +1,6 @@
+mutation DeleteGroupLesson($grouplesson: PlannedLessonGroupDeleteGQLModel!) {
+  result: plannedLessonGroupDelete(grouplesson: $grouplesson) {
+    id
+    msg
+  }
+}

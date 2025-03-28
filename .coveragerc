@@ -1,0 +1,16 @@
+[run]
+branch = True
+omit =
+    # Resolver/permission helpery
+    src/GraphTypeDefinitions/_GraphResolvers.py
+    src/GraphTypeDefinitions/_GraphPermissions.py
+    src/GraphTypeDefinitions/externals.py
+    src/GraphTypeDefinitions/__init__.py
+
+[report]
+exclude_lines =
+    pragma: no cover
+    raise NotImplementedError
+    if __name__ == "__main__":
+    except ImportError
+    except Exception

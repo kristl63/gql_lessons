@@ -1,0 +1,11 @@
+query ResolverFields($id: UUID!) {
+  result: plannedLessonById(id: $id) {
+    id
+    name
+    created
+    createdby { id }
+    changedby { id }
+    lastchange
+    rbacObject { id }
+  }
+}

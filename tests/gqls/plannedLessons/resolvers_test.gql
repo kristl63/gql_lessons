@@ -1,0 +1,11 @@
+query PlannedLessonResolversTest($id: UUID!) {
+  result: plannedLessonById(id: $id) {
+    id
+    name
+    created
+    createdby { id }
+    lastchange
+    changedby { id }
+    rbacObject { id }
+  }
+}

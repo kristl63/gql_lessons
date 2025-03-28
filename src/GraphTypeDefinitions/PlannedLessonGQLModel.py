@@ -184,11 +184,14 @@ class PlannedLessonInputFilter:
     # users: PlannedUserInputFilter
     # groups: PlannedGroupInputFilter
 
-@strawberry.field(description="""Planned lesson by its id""")
-async def planned_lesson_by_id(
-    self, info: strawberry.types.Info, id: uuid.UUID
-) -> Optional[PlannedLessonGQLModel]:
-    return await PlannedLessonGQLModel.resolve_reference(info=info, id=id)
+#@strawberry.field(description="""Planned lesson by its id""")
+#async def planned_lesson_by_id(
+#    self, info: strawberry.types.Info, id: uuid.UUID
+#) -> Optional[PlannedLessonGQLModel]:
+#    return await PlannedLessonGQLModel.resolve_reference(info=info, id=id)
+@strawberry.field
+async def planned_lesson_by_id(self, info, id: uuid.UUID) -> Optional[PlannedLessonGQLModel]:
+    return await PlannedLessonGQLModel.resolve_reference(info, id)
 
 @strawberry.field(description="""Planned lesson paged""")
 @asPage
@@ -432,10 +435,13 @@ async def planned_lesson_remove(self, info: strawberry.types.Info, lesson: Plann
     row = await loader.load(lesson.id)
     result = PlanResultGQLModel()
     if row:
-        await loader.delete(lesson)
+        await loader.delete(lesson.id)
         result.msg = "ok"
-        result.id = row.plan_id
+        #result.id = row.plan_id
+        result.id = row.plan_id or uuid.UUID(int=0)
     else:
+        #result.msg = "fail"
+        #result.id = row.plan_id
         result.msg = "fail"
-        result.id = row.plan_id
+        result.id = uuid.UUID(int=0)
     return result

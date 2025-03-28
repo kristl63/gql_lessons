@@ -23,8 +23,8 @@ async def prepare_in_memory_sqllite():
 
 async def prepare_demodata(async_session_maker):
     from src.DBFeeder import get_demodata
-    from src.DBDefinitions import FacilityModel, FacilityTypeModel
-    from src.DBDefinitions import EventFacilityModel, EventFacilityStateType
+    #from src.DBDefinitions import FacilityModel, FacilityTypeModel
+    #from src.DBDefinitions import EventFacilityModel, EventFacilityStateType
 
     data = get_demodata()
 
@@ -33,10 +33,10 @@ async def prepare_demodata(async_session_maker):
     await ImportModels(
         async_session_maker,
         [
-            FacilityModel, 
-            FacilityTypeModel,
-            EventFacilityModel, 
-            EventFacilityStateType,            
+            #FacilityModel, 
+            #FacilityTypeModel,
+            #EventFacilityModel, 
+            #EventFacilityStateType,            
         ],
         data,
     )

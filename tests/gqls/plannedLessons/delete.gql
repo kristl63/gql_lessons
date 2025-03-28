@@ -1,31 +1,10 @@
-mutation ($id: UUID!, $lastchange: DateTime!) {
-  result: plannedLessonDelete(
-    lesson: {id: $id, lastchange: $lastchange}
+mutation DeletePlannedLesson($id: UUID!, $lastchange: DateTime!) {
+  plannedLessonRemove(
+    lesson: { id: $id, lastchange: $lastchange }
   ) {
     __typename
-    ...Error
+    msg
+    id
   }
 }
 
-fragment Error on PlannedLessonDeleteError {
-	__typename
-  failed
-  msg
-}
-
-// ...existing code...
-
-mutation ($id: UUID!, $lastchange: DateTime!) {
-  result: plannedLessonRemove(
-    lesson: {id: $id, lastchange: $lastchange}
-  ) {
-    __typename
-    ...Error
-  }
-}
-
-fragment Error on PlannedLessonDeleteError {
-	__typename
-  failed
-  msg
-}

@@ -1,0 +1,6 @@
+mutation InsertGroupLesson($grouplesson: PlannedLessonGroupInsertGQLModel!) {
+  result: plannedLessonGroupInsert(grouplesson: $grouplesson) {
+    id
+    msg
+  }
+}

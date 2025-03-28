@@ -44,10 +44,11 @@ class Query:
 @strawberry.federation.type(extend=True)
 class Mutation:
     from .PlanGQLModel import (
-        plan_insert, plan_update
+        plan_insert, plan_update, plan_delete
     )
     plan_insert = plan_insert
     plan_update = plan_update
+    plan_delete = plan_delete
 
     from .PlannedLessonGQLModel import (
         planned_lesson_facility_delete,

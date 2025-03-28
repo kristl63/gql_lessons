@@ -1,0 +1,8 @@
+query User_resolve_reference($id: UUID!) {
+  _entities(representations: [{ __typename: "UserGQLModel", id: $id }]) {
+    __typename
+    ... on UserGQLModel {
+      id
+    }
+  }
+}
