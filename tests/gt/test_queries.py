@@ -618,4 +618,123 @@ async def test_planned_lesson_remove_row_none():
     assert result.msg == "fail"
     assert result.id == UUID(int=0)
 
+import pytest
+from uuid import UUID
+from unittest.mock import AsyncMock
+@pytest.mark.asyncio
+async def test_lessons_returns_filtered_plans():
+    from src.GraphTypeDefinitions.PlanGQLModel import PlanGQLModel
+    from src.GraphTypeDefinitions.PlannedLessonGQLModel import PlannedLessonGQLModel
+    from uuid import UUID
+    from unittest.mock import AsyncMock
 
+    class Info:
+        context = {}
+
+    mock_loader = AsyncMock()
+    mock_loader.filter_by.return_value = ["lesson1", "lesson2"]
+
+    PlannedLessonGQLModel.getLoader = lambda info: mock_loader
+
+    # 👉 použij originální třídu, ne mock
+    instance = object.__new__(PlanGQLModel)
+    instance.id = UUID("f2e9996c-2cca-42d9-93ec-660baf6f95b9")
+
+    result = await instance.lessons(Info())
+
+    mock_loader.filter_by.assert_awaited_once_with(plan_id=instance.id)
+    assert result == ["lesson1", "lesson2"]
+
+@pytest.mark.asyncio
+async def test_plan_semester_returns_resolved_object():
+    from src.GraphTypeDefinitions.PlanGQLModel import PlanGQLModel
+    from src.GraphTypeDefinitions.AcSemesterGQLModel import AcSemesterGQLModel
+    from uuid import UUID
+    from unittest.mock import AsyncMock
+
+    # ⚙️ Mock resolve_reference
+    AcSemesterGQLModel.resolve_reference = AsyncMock(return_value="mock-semester")
+
+    # ⚙️ Vytvoř PlanGQLModel instanci
+    instance = object.__new__(PlanGQLModel)
+    instance.semester_id = UUID("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa")
+
+    class Info: pass
+    result = await instance.semester(Info())
+
+    AcSemesterGQLModel.resolve_reference.assert_awaited_once_with(id=instance.semester_id)
+    assert result == "mock-semester"
+
+from unittest.mock import AsyncMock, patch
+from uuid import UUID
+import pytest
+
+@pytest.mark.asyncio
+async def test_plan_event_returns_resolved_object_or_none():
+    from src.GraphTypeDefinitions.PlanGQLModel import PlanGQLModel
+
+    class Info: pass
+
+    # ➤ Test 1: event_id is None
+    instance_none = object.__new__(PlanGQLModel)
+    instance_none.event_id = None
+    assert await instance_none.event(Info()) is None
+
+    # ➤ Test 2: event_id exists
+    instance = object.__new__(PlanGQLModel)
+    instance.event_id = UUID("bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb")
+
+    # ➤ Patch uvnitř resolveru
+    with patch("src.GraphTypeDefinitions.PlanGQLModel.EventGQLModel") as MockEvent:
+        MockEvent.resolve_reference = AsyncMock(return_value="mock-event")
+        result = await instance.event(Info())
+
+    assert result == "mock-event"
+    MockEvent.resolve_reference.assert_awaited_once_with(instance.event_id)
+
+from unittest.mock import AsyncMock, ANY
+
+@pytest.mark.asyncio
+async def test_plan_page_executes_loader_page():
+    from src.GraphTypeDefinitions.PlanGQLModel import plan_page
+
+    mock_loader = AsyncMock()
+    mock_loader.page = AsyncMock(return_value="mocked-result")
+
+    class MockAll:
+        plans = mock_loader
+
+    class Info:
+        context = {"loaders": MockAll()}
+
+    result = await plan_page.base_resolver(None, Info(), skip=0, limit=10, where=None)
+
+    assert result == "mocked-result"
+    mock_loader.page.assert_awaited_once_with(
+        skip=0,
+        limit=10,
+        where=None,
+        orderby=ANY,
+        desc=ANY,
+        extendedfilter=ANY
+    )
+
+@pytest.mark.asyncio
+async def test_plan_result_gqlmodel_plan():
+    from src.GraphTypeDefinitions.PlanGQLModel import PlanGQLModel, PlanResultGQLModel as ConcreteClass
+    from uuid import UUID
+    from unittest.mock import AsyncMock
+
+    # Mock metoda resolve_reference
+    PlanGQLModel.resolve_reference = AsyncMock(return_value="mocked-plan")
+
+    # ⬅ Stejná instance info
+    info = type("Info", (), {})()
+
+    instance = ConcreteClass()
+    instance.id = UUID("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa")
+
+    result = await instance.plan(info)
+
+    assert result == "mocked-plan"
+    PlanGQLModel.resolve_reference.assert_awaited_once_with(info, instance.id)
