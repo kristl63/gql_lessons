@@ -49,25 +49,25 @@ PlannedLessonGQLModel = Annotated["PlannedLessonGQLModel", strawberry.lazy(".Pla
 
 @strawberry.federation.type(
     keys=["id"],
-    description="""Entity representing a study plan for timetable creation""",
+    description="""Entita reprezentující studijní plán pro tvorbu rozvrhu""",
 )
 class PlanGQLModel(BaseGQLModel):
     @classmethod
     def getLoader(cls, info: strawberry.types.Info):
         return getLoadersFromInfo(info).plans
 
-    id = resolve_id
-    name = resolve_name
-    changedby = resolve_changedby
-    lastchange = resolve_lastchange
-    created = resolve_created
-    createdby = resolve_createdby
+    id = resolve_id #id
+    name = resolve_name # název plánu
+    changedby = resolve_changedby #kdo posledná měnil
+    lastchange = resolve_lastchange #datum poslední změny
+    created = resolve_created #datum vytvoření
+    createdby = resolve_createdby #kdo vytvořil
 
-    event_id: Optional[uuid.UUID]
+    event_id: Optional[uuid.UUID] # Odkaz na hlavní událost
     
     rbac_object = resolve_rbacobject
     
-    @strawberry.field(description="""planned lessons""")
+    @strawberry.field(description="""Seznam plánovaných lekcí v rámci tohoto plánu""")
     async def lessons(self, info: strawberry.types.Info) -> List["PlannedLessonGQLModel"]:
         from .PlannedLessonGQLModel import PlannedLessonGQLModel
         # loader = getLoadersFromInfo(info).plans
@@ -75,13 +75,13 @@ class PlanGQLModel(BaseGQLModel):
         result = await loader.filter_by(plan_id=self.id)
         return result
     
-    @strawberry.field(description="""acredited semester""")
+    @strawberry.field(description="""Acreditovaný semestr, ke kterému plán patří""")
     async def semester(self, info: strawberry.types.Info) -> Optional["AcSemesterGQLModel"]:
         from .AcSemesterGQLModel import AcSemesterGQLModel
         result = await AcSemesterGQLModel.resolve_reference(id=self.semester_id)
         return result
     
-    @strawberry.field
+    @strawberry.field(description="""Hlavní událost, na které je plán založen""")
     async def event(self, info: strawberry.types.Info) -> Optional[EventGQLModel]:
         if self.event_id is None:
             return None
@@ -90,8 +90,8 @@ class PlanGQLModel(BaseGQLModel):
 @createInputs
 @dataclass
 class PlanInputFilter:
-    name: str
-    masterevent_id: IDType
+    name: str # filtr dle názvu
+    masterevent_id: IDType #filtrování dle ID hlavní události
 
 @strawberry.field(description="""Planned lesson by its id""")
 async def plan_by_id(
@@ -108,31 +108,31 @@ async def plan_page(
 ) -> List[PlanGQLModel]:
     return PlanGQLModel.getLoader(info)
 
-@strawberry.input(description="")
+@strawberry.input(description="""Vstupní model pro vytvoření nového plánu""")
 class PlanInsertGQLModel:
-    semester_id: IDType
-    masterevent_id: IDType
-    id: Optional[IDType] = None
-    name: Optional[str] = "Nový plán"
+    semester_id: IDType = strawberry.field(description="ID semestru")
+    masterevent_id: IDType = strawberry.field(description="ID hlavní události")
+    id: Optional[IDType] = strawberry.field(description="Volitelné ID (UUID) plánu", default=None)
+    name: Optional[str] = strawberry.field(description="Název plánu", default="Nový plán")
     pass
 
-@strawberry.input(description="")
+@strawberry.input(description="""Vstupní model pro aktualizaci existujícího plánu""")
 class PlanUpdateGQLModel:
-    id: IDType
-    lastchange: datetime.datetime
-    name: Optional[str]
+    id: IDType = strawberry.field(description="ID plánu")
+    lastchange: datetime.datetime = strawberry.field(description="Časová značka poslední změny")
+    name: Optional[str] = strawberry.field(description="Nový název plánu", default=None)
     pass
 
-@strawberry.input(description="")
+@strawberry.input(description="""Vstupní model pro smazání plánu""")
 class PlanDeleteGQLModel:
-    id: IDType
-    lastchange: datetime.datetime
+    id: IDType = strawberry.field(description="ID plánu ke smazání")
+    lastchange: datetime.datetime = strawberry.field(description="Časová značka pro kontrolu změn")
     pass
 
-@strawberry.type(description="")
+@strawberry.type(description="""Výsledek operace s plánem""")
 class PlanResultGQLModel:
-    id: uuid.UUID = None
-    msg: str = None
+    id: uuid.UUID = strawberry.field(description="ID plánu", default=None)
+    msg: str = strawberry.field(description="Zpráva o výsledku operace", default=None)
 
     @strawberry.field(description="""Result of lesson operation""")
     async def plan(self, info: strawberry.types.Info) -> Optional[PlanGQLModel]:
