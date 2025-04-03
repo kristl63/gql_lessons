@@ -412,7 +412,7 @@ async def planned_lesson_facility_delete(self, info: strawberry.types.Info, faci
     row = next(rows, None)
     result = PlannedLessonResultGQLModel()
     if row is None:
-        result.msg = "fail"
+        result.msg = "fail" #415
     else:
         await loader.delete(row.id)
         result.msg = "ok"
@@ -442,6 +442,8 @@ async def planned_lesson_remove(self, info: strawberry.types.Info, lesson: Plann
     else:
         #result.msg = "fail"
         #result.id = row.plan_id
-        result.msg = "fail"
-        result.id = uuid.UUID(int=0)
+        result.msg = "fail"     #445
+        result.id = uuid.UUID(int=0) #446
     return result
+
+

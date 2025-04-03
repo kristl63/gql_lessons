@@ -223,3 +223,399 @@ async def test_planned_lesson_reference_not_found():
 
     result = await PlannedLessonGQLModel.resolve_reference(info=Info(), id=uuid.uuid4())
     assert result is None
+
+@pytest.mark.asyncio
+async def test_linked_to_fetches_data():
+    from src.GraphTypeDefinitions.PlannedLessonGQLModel import PlannedLessonGQLModel
+    import uuid
+
+    linked_id = uuid.uuid4()
+    instance_id = uuid.uuid4()
+
+    # Create instance "bez" initu
+    instance = object.__new__(PlannedLessonGQLModel)
+    instance.__dict__["id"] = instance_id
+    instance.__dict__["linkedlesson_id"] = linked_id
+
+    # Mock loader
+    class MockLoader:
+        async def load(self, _id):
+            assert _id == linked_id
+            return {"id": _id}
+
+    class Info:
+        context = {
+            "loaders": type("Loaders", (), {"plan_lessons": MockLoader()})()
+        }
+
+    result = await instance.linked_to(Info())
+    assert result["id"] == linked_id
+
+import uuid
+import pytest
+from unittest.mock import AsyncMock
+
+@pytest.mark.asyncio
+async def test_linked_with_fetches_linked_lessons():
+    from src.GraphTypeDefinitions.PlannedLessonGQLModel import PlannedLessonGQLModel
+
+    lesson_id = uuid.uuid4()
+    linked_id = uuid.uuid4()
+
+    # Vytvoření instance bez __init__
+    instance = object.__new__(PlannedLessonGQLModel)
+    instance.__dict__["id"] = lesson_id
+    instance.__dict__["linkedlesson_id"] = linked_id
+
+    # Mock loader
+    class MockLoader:
+        async def filter_by(self, **kwargs):
+            assert kwargs == {"linkedlesson_id": lesson_id}
+            return [{"id": "mock-lesson-1"}, {"id": "mock-lesson-2"}]
+
+    class Info:
+        context = {
+            "loaders": type("Loaders", (), {
+                "plan_lessons": MockLoader()
+            })()
+        }
+
+    result = await instance.linked_with(Info())
+
+    # Assertion: první položka je "self", další jsou z filter_by
+    assert isinstance(result, list)
+    assert result[0] == instance
+    assert len(result) == 3  # 1 self + 2 mock results
+
+import pytest
+from src.GraphTypeDefinitions.PlannedLessonGQLModel import PlannedLessonGQLModel
+
+@pytest.mark.asyncio
+async def test_event_returns_none_when_event_id_is_none():
+    # Vytvoř instanci bez __init__
+    instance = object.__new__(PlannedLessonGQLModel)
+    instance.__dict__["event_id"] = None
+
+    class Info:
+        context = {}  # není potřeba loader
+
+    result = await instance.event(Info())
+
+    assert result is None
+
+import pytest
+from src.GraphTypeDefinitions.PlannedLessonGQLModel import PlannedLessonGQLModel
+
+@pytest.mark.asyncio
+async def test_topic_returns_none_when_topic_id_is_none():
+    instance = object.__new__(PlannedLessonGQLModel)
+    instance.__dict__["topic_id"] = None
+
+    class Info:
+        context = {}
+
+    result = await instance.topic(Info())
+
+    assert result is None
+
+import pytest
+import uuid
+from src.GraphTypeDefinitions.PlannedLessonGQLModel import PlannedLessonGQLModel
+
+@pytest.mark.asyncio
+async def test_semester_returns_model_when_id_present():
+    semester_uuid = uuid.uuid4()
+
+    instance = object.__new__(PlannedLessonGQLModel)
+    instance.__dict__["semester_id"] = semester_uuid
+
+    class Info:
+        context = {}
+
+    result = await instance.semester(Info())
+
+    assert result is not None
+    assert result.id == semester_uuid
+
+import pytest
+from unittest.mock import AsyncMock
+from src.GraphTypeDefinitions.PlannedLessonGQLModel import planned_lesson_page
+
+@pytest.mark.asyncio
+async def test_planned_lesson_page_returns_loader():
+    # Připrav mock loader s .page metodou
+    mock_loader = AsyncMock()
+    mock_loader.page = AsyncMock(return_value="paged-result")
+
+    class MockAll:
+        plan_lessons = mock_loader
+
+    class Info:
+        context = {"loaders": MockAll()}
+
+    # Zavolání resolveru přes base_resolver
+    result = await planned_lesson_page.base_resolver(None, Info(), skip=0, limit=10, where=None)
+
+    # Ověř výsledek
+    assert result == "paged-result"
+
+    # Ověř že .page bylo zavoláno (minimálně)
+    mock_loader.page.assert_awaited_once()
+
+    # A volitelně zkontroluj klíčové argumenty
+    called_args = mock_loader.page.await_args.kwargs
+    assert called_args["skip"] == 0
+    assert called_args["limit"] == 10
+    assert called_args["where"] is None
+
+
+import pytest
+import uuid
+from unittest.mock import AsyncMock
+from src.GraphTypeDefinitions.PlannedLessonGQLModel import PlannedLessonResultGQLModel
+from src.GraphTypeDefinitions.PlannedLessonGQLModel import PlannedLessonGQLModel
+from src.GraphTypeDefinitions.PlanGQLModel import PlanGQLModel
+
+@pytest.mark.asyncio
+async def test_plan_field_returns_plan_when_plan_id_exists():
+    lesson_id = uuid.uuid4()
+    plan_id = uuid.uuid4()
+
+    instance = object.__new__(PlannedLessonResultGQLModel)
+    instance.__dict__["id"] = lesson_id
+
+    # mock plannedLesson -> plan_id
+    PlannedLessonGQLModel.resolve_reference = AsyncMock(return_value=type("MockLesson", (), {"plan_id": plan_id})())
+    # mock Plan resolve_reference
+    PlanGQLModel.resolve_reference = AsyncMock(return_value=type("MockPlan", (), {"id": plan_id})())
+
+    class Info:
+        context = {}
+
+    result = await instance.plan(Info())
+    assert result.id == plan_id
+
+
+@pytest.mark.asyncio
+async def test_plan_field_returns_none_when_no_plan_id():
+    instance = object.__new__(PlannedLessonResultGQLModel)
+    instance.__dict__["id"] = uuid.uuid4()
+
+    PlannedLessonGQLModel.resolve_reference = AsyncMock(return_value=type("MockLesson", (), {"plan_id": None})())
+
+    class Info:
+        context = {}
+
+    result = await instance.plan(Info())
+    assert result is None
+
+import pytest
+from unittest.mock import AsyncMock
+from src.GraphTypeDefinitions.PlannedLessonGQLModel import planned_lesson_user_insert
+from src.GraphTypeDefinitions.PlannedLessonGQLModel import PlannedLessonUserInsertGQLModel
+@pytest.mark.asyncio
+async def test_planned_lesson_user_insert_new():
+    userlesson = PlannedLessonUserInsertGQLModel(
+        user_id="f340002d-c904-41e7-9e5d-8c8274bdf60d",
+        planlesson_id="e1f3405f-9492-4030-822e-df1c720cfb9e"
+    )
+
+    class Loader:
+        async def filter_by(self, **kwargs):
+            return []
+
+        async def insert(self, x):
+            return {"id": "inserted"}
+
+    class Info:
+        context = {
+            "loaders": type("All", (), {"plan_lessons_users": Loader()})(),
+            "user": {"id": "16cc5c71-5a69-4637-91c5-6ae7cff40633"}  # ✅ mocknutý uživatel
+        }
+
+    result = await planned_lesson_user_insert.base_resolver(None, Info(), userlesson)
+
+    assert result.msg == "ok"
+    assert result.id == userlesson.planlesson_id
+
+import pytest
+from uuid import UUID
+from src.GraphTypeDefinitions.PlannedLessonGQLModel import (
+    planned_lesson_user_delete,
+    PlannedLessonUserDeleteGQLModel,
+)
+
+@pytest.mark.asyncio
+async def test_planned_lesson_user_delete_row_none():
+    userlesson = PlannedLessonUserDeleteGQLModel(
+        user_id=UUID("f340002d-c904-41e7-9e5d-8c8274bdf60d"),
+        planlesson_id=UUID("e1f3405f-9492-4030-822e-df1c720cfb9e")
+    )
+
+    class Loader:
+        async def filter_by(self, **kwargs):
+            return iter([])  # ✅ iterátor místo listu
+
+    class Info:
+        context = {
+            "loaders": type("All", (), {"plan_lessons_users": Loader()})(),
+            "user": {"id": "16cc5c71-5a69-4637-91c5-6ae7cff40633"}
+        }
+
+    result = await planned_lesson_user_delete.base_resolver(None, Info(), userlesson)
+
+    assert result.msg == "fail"
+    assert result.id == userlesson.planlesson_id
+
+@pytest.mark.asyncio
+async def test_planned_lesson_group_insert_inserts_if_not_exists():
+    from src.GraphTypeDefinitions.PlannedLessonGQLModel import (
+        planned_lesson_group_insert,
+        PlannedLessonGroupInsertGQLModel,
+    )
+
+    grouplesson = PlannedLessonGroupInsertGQLModel(
+        planlesson_id=UUID("e1f3405f-9492-4030-822e-df1c720cfb9e"),
+        group_id=UUID("f340002d-c904-41e7-9e5d-8c8274bdf60d"),
+    )
+
+    class Loader:
+        async def filter_by(self, **kwargs):
+            return []  # žádné existující propojení, triggerne insert
+
+        async def insert(self, value):
+            assert value == grouplesson
+            return {"id": "0cb1a2ed-c205-4295-965d-b4513666de21"}
+
+    class Info:
+        context = {
+            "loaders": type("All", (), {"plan_lessons_groups": Loader()})(),
+            "user": {"id": "16cc5c71-5a69-4637-91c5-6ae7cff40633"}
+        }
+
+    result = await planned_lesson_group_insert.base_resolver(None, Info(), grouplesson)
+
+    assert result.id == grouplesson.planlesson_id
+    assert result.msg == "ok"
+
+@pytest.mark.asyncio
+async def test_planned_lesson_group_delete_row_none():
+    from src.GraphTypeDefinitions.PlannedLessonGQLModel import (
+        planned_lesson_group_delete,
+        PlannedLessonGroupDeleteGQLModel,
+    )
+
+    grouplesson = PlannedLessonGroupDeleteGQLModel(
+        planlesson_id=UUID("e1f3405f-9492-4030-822e-df1c720cfb9e"),
+        group_id=UUID("f340002d-c904-41e7-9e5d-8c8274bdf60d"),
+    )
+
+    class Loader:
+        async def filter_by(self, **kwargs):
+            return iter([])  # ⬅ přidáno iter() – řeší problém
+
+
+        async def delete(self, id):
+            pass  # nebude voláno
+
+    class Info:
+        context = {
+            "loaders": type("All", (), {"plan_lessons_groups": Loader()})(),
+            "user": {"id": "16cc5c71-5a69-4637-91c5-6ae7cff40633"}
+        }
+
+    result = await planned_lesson_group_delete.base_resolver(None, Info(), grouplesson)
+
+    assert result.msg == "fail"
+    assert result.id == grouplesson.planlesson_id
+
+import pytest
+from uuid import UUID
+from src.GraphTypeDefinitions.PlannedLessonGQLModel import planned_lesson_facility_insert
+from src.GraphTypeDefinitions.PlannedLessonGQLModel import PlannedLessonFacilityInsertGQLModel
+
+@pytest.mark.asyncio
+async def test_planned_lesson_facility_insert_calls_insert():
+    facilitylesson = PlannedLessonFacilityInsertGQLModel(
+        planlesson_id=UUID("e1f3405f-9492-4030-822e-df1c720cfb9e"),
+        facility_id=UUID("a2d7ef58-b2e5-4f7f-9b0a-e518d1b25af8")
+    )
+
+    class Loader:
+        async def filter_by(self, **kwargs):
+            return []  # ⬅️ způsobí vstup do bloku `if not exists`
+
+        async def insert(self, data):
+            return {"id": "inserted-facility"}
+
+    class Info:
+        context = {
+            "loaders": type("All", (), {"plan_lessons_facilities": Loader()})(),
+            "user": {"id": "16cc5c71-5a69-4637-91c5-6ae7cff40633"}
+        }
+
+    result = await planned_lesson_facility_insert.base_resolver(None, Info(), facilitylesson)
+
+    assert result.id == facilitylesson.planlesson_id
+    assert result.msg == "ok"
+
+@pytest.mark.asyncio
+async def test_planned_lesson_facility_delete_row_none():
+    from src.GraphTypeDefinitions.PlannedLessonGQLModel import planned_lesson_facility_delete
+    from src.GraphTypeDefinitions.PlannedLessonGQLModel import PlannedLessonFacilityDeleteGQLModel
+    from uuid import UUID
+
+    facilitylesson = PlannedLessonFacilityDeleteGQLModel(
+        facility_id=UUID("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"),
+        planlesson_id=UUID("bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb")
+    )
+
+    class Loader:
+        async def filter_by(self, **kwargs):
+            return iter([])  # ✅ vrací iterator, ne list
+
+        async def delete(self, id):
+            pass
+
+
+    class Info:
+        context = {
+            "loaders": type("All", (), {"plan_lessons_facilities": Loader()})()
+        }
+
+    result = await planned_lesson_facility_delete.base_resolver(None, Info(), facilitylesson)
+
+    assert result.msg == "fail"                       # ⬅ this hits line 415
+    assert result.id == facilitylesson.planlesson_id
+
+import pytest
+from uuid import UUID
+from datetime import datetime
+from src.GraphTypeDefinitions.PlannedLessonGQLModel import planned_lesson_remove, PlannedLessonDeleteGQLModel
+
+@pytest.mark.asyncio
+async def test_planned_lesson_remove_row_none():
+    # Arrange
+    lesson = PlannedLessonDeleteGQLModel(
+        id=UUID("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"),
+        lastchange=datetime.utcnow()  # nebo nějaký pevný čas, pokud chceš deterministický test
+    )
+
+    class Loader:
+        async def load(self, _id):
+            return None  # ⬅ triggne else větev → pokryje řádky 445–446
+
+        async def delete(self, _id):  # není voláno v tomto scénáři
+            pass
+
+    class Info:
+        context = {"loaders": type("All", (), {"plan_lessons": Loader()})()}
+
+    # Act
+    result = await planned_lesson_remove.base_resolver(None, Info(), lesson)
+
+    # Assert
+    assert result.msg == "fail"
+    assert result.id == UUID(int=0)
+
+
